@@ -482,6 +482,7 @@ class App extends
     val (codeTabContainer, codeTabbedPane) = initCodeContainer(frame)
     Splash.endSplash()
     frame.setVisible(true)
+    codeTabbedPane.add(tabs.codeTab)
     if (isMac) {
       appHandler.getClass.getDeclaredMethod("ready", classOf[AnyRef]).invoke(appHandler, this)
     }
