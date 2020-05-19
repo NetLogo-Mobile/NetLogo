@@ -483,6 +483,7 @@ class App extends
     Splash.endSplash()
     frame.setVisible(true)
     codeTabbedPane.add(tabs.codeTab)
+    tabs.setCodeTabOwner(codeTabbedPane)
     if (isMac) {
       appHandler.getClass.getDeclaredMethod("ready", classOf[AnyRef]).invoke(appHandler, this)
     }

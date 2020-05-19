@@ -72,8 +72,16 @@ class Tabs(val workspace:       GUIWorkspace,
   val infoTab = new InfoTab(workspace.attachModelDir(_))
   val codeTab = new MainCodeTab(workspace, this, menu)
   var externalFileTabs = Set.empty[TemporaryCodeTab]
-
   var currentTab: Component = interfaceTab
+  var codeTabOwner: JTabbedPane = this
+
+  def getCodeTabOwner = codeTabOwner
+  
+  def setCodeTabOwner(codeTabOwner: JTabbedPane): Unit = {
+    if (codeTabOwner != this.codeTabOwner) {
+      this.codeTabOwner = codeTabOwner
+    }
+  }
 
   def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
