@@ -87,6 +87,10 @@ class Tabs(val workspace:       GUIWorkspace,
     if (tab.isInstanceOf[MainCodeTab]) mainCodeTabOwner else this
   }
 
+  def getTabOwner(tab: Component): JTabbedPane = {
+    if (tab.isInstanceOf[MainCodeTab]) mainCodeTabOwner else this
+  }
+
   def setSelectedCodeTab(tab: CodeTab): Unit = {
     getCodeTabOwner(tab).setSelectedComponent(tab)
   }
@@ -168,7 +172,9 @@ class Tabs(val workspace:       GUIWorkspace,
       getCodeTabOwner(tab).setForegroundAt(
         getCodeTabOwner(tab).indexOfComponent(tab), null))
     def recolorTab(component: Component, hasError: Boolean): Unit =
-      setForegroundAt(indexOfComponent(component), if(hasError) errorColor else null)
+      getTabOwner(component).setForegroundAt(
+        getTabOwner(component).indexOfComponent(component),
+        if(hasError) errorColor else null)
     def recolorInterfaceTab() = {
       if (e.error != null) setSelectedIndex(0)
       recolorTab(interfaceTab, e.error != null)
