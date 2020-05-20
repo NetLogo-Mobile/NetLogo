@@ -73,14 +73,22 @@ class Tabs(val workspace:       GUIWorkspace,
   val codeTab = new MainCodeTab(workspace, this, menu)
   var externalFileTabs = Set.empty[TemporaryCodeTab]
   var currentTab: Component = interfaceTab
-  var codeTabOwner: JTabbedPane = this
+  var mainCodeTabOwner: JTabbedPane = this
 
-  def getCodeTabOwner = codeTabOwner
-  
-  def setCodeTabOwner(codeTabOwner: JTabbedPane): Unit = {
-    if (codeTabOwner != this.codeTabOwner) {
-      this.codeTabOwner = codeTabOwner
+  def getMainCodeTabOwner() : JTabbedPane = mainCodeTabOwner
+
+  def setMainCodeTabOwner(mainCodeTabOwner: JTabbedPane): Unit = {
+    if (mainCodeTabOwner != this.mainCodeTabOwner) {
+      this.mainCodeTabOwner = mainCodeTabOwner
     }
+  }
+
+  def getCodeTabOwner(tab: CodeTab): JTabbedPane = {
+    if (tab.isInstanceOf[MainCodeTab]) mainCodeTabOwner else this
+  }
+
+  def setSelectedCodeTab(tab: CodeTab): Unit = {
+    getCodeTabOwner(tab).setSelectedComponent(tab)
   }
 
   def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
@@ -148,7 +156,7 @@ class Tabs(val workspace:       GUIWorkspace,
         }
 
   def highlightRuntimeError(tab: CodeTab, e: RuntimeErrorEvent) {
-    setSelectedComponent(tab)
+    setSelectedCodeTab(tab)
     // the use of invokeLater here is a desperate attempt to work around the Mac bug where sometimes
     // the selection happens and sometime it doesn't - ST 8/28/04
     EventQueue.invokeLater(() => tab.select(e.pos, e.pos + e.length) )
@@ -156,7 +164,9 @@ class Tabs(val workspace:       GUIWorkspace,
 
   def handle(e: CompiledEvent) = {
     val errorColor = Color.RED
-    def clearErrors() = forAllCodeTabs(tab => setForegroundAt(indexOfComponent(tab), null))
+    def clearErrors() = forAllCodeTabs(tab =>
+      getCodeTabOwner(tab).setForegroundAt(
+        getCodeTabOwner(tab).indexOfComponent(tab), null))
     def recolorTab(component: Component, hasError: Boolean): Unit =
       setForegroundAt(indexOfComponent(component), if(hasError) errorColor else null)
     def recolorInterfaceTab() = {
@@ -171,7 +181,7 @@ class Tabs(val workspace:       GUIWorkspace,
         if (e.error == null)
           clearErrors()
         else {
-          setSelectedComponent(codeTab)
+          setSelectedCodeTab(codeTab)
           recolorTab(codeTab, true)
         }
         // I don't really know why this is necessary when you delete a slider (by using the menu
@@ -186,7 +196,7 @@ class Tabs(val workspace:       GUIWorkspace,
           tab = getTabWithFilename(Right(filename))
           tab.get.handle(e) // it was late to the party, let it handle the event too
         }
-        if (e.error != null) setSelectedComponent(tab.get)
+        if (e.error != null) setSelectedCodeTab(tab.get)
         recolorTab(tab.get, e.error != null)
         requestFocus()
       case null => // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
@@ -218,7 +228,7 @@ class Tabs(val workspace:       GUIWorkspace,
 
   def openExternalFile(filename: String) =
     getTabWithFilename(Right(filename)) match {
-      case Some(tab) => setSelectedComponent(tab)
+      case Some(tab) => setSelectedCodeTab(tab)
       case _ => addNewTab(Right(filename))
     }
 
@@ -229,7 +239,7 @@ class Tabs(val workspace:       GUIWorkspace,
     addTab(tab.filenameForDisplay, tab)
     addMenuItem(getTabCount - 1, tab.filenameForDisplay)
     Event.rehash()
-    setSelectedComponent(tab)
+    setSelectedCodeTab(tab)
     // if I just call requestFocus the tab never gets the focus request because it's not yet
     // visible.  There might be a more swing appropriate way to do this but I can't figure it out
     // (if you know it feel free to fix) ev 7/24/07
