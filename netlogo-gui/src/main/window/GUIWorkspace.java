@@ -731,6 +731,7 @@ public abstract strictfp class GUIWorkspace // can't be both abstract and strict
   }
 
   public void handle(org.nlogo.window.Events.AfterLoadEvent e) {
+        System.out.println("   >GUIWorkspace handle AfterLoadEvent");
     setPeriodicUpdatesEnabled(true);
     world().observer().resetPerspective();
     updateManager().reset();
@@ -751,6 +752,7 @@ public abstract strictfp class GUIWorkspace // can't be both abstract and strict
     } catch (CompilerException error) {
       org.nlogo.api.Exceptions.ignore(error);
     }
+        System.out.println("   >GUIWorkspace handle AfterLoadEvent");
   }
 
   private void open3DView() {
@@ -1069,27 +1071,38 @@ public abstract strictfp class GUIWorkspace // can't be both abstract and strict
    * time we handle LoadBeginEvent.
    */
   public void handle(org.nlogo.window.Events.BeforeLoadEvent e) {
+    System.out.println("   >GUIWorkspace handle BeforeLoadEvent");
     setPeriodicUpdatesEnabled(false);
     if (e.modelPath.isDefined()) {
+      System.out.println("     =GUIWorkspace setModelPath(e.modelPath.get())");
       setModelPath(e.modelPath.get());
     } else {
+      System.out.println("     =GUIWorkspace setModelPath(null)");
       setModelPath(null);
     }
+    System.out.println("     =GUIWorkspace setModelType");
     setModelType(e.modelType);
     if (hubNetManager().isDefined()) {
+      System.out.println("     =GUIWorkspace disconnect hubNetManager");
       hubNetManager().get().disconnect();
+      System.out.println("     =GUIWorkspace hubnetmgr disconnected");
     }
+
     jobManager.haltSecondary();
     jobManager.haltPrimary();
+    System.out.println("     =GUIWorkspace   getExtensionManager().reset();");
     getExtensionManager().reset();
+    System.out.println("     =GUIWorkspace fileManager().handleModelChange()");
     fileManager().handleModelChange();
     previewCommands_$eq(PreviewCommands$.MODULE$.DEFAULT());
     clearDrawing();
     viewManager().resetMouseCors();
     displaySwitchOn(true);
+    System.out.println("     =GUIWorkspace setProcedures");
     setProcedures(new scala.collection.immutable.ListMap<String, Procedure>());
     lastTicksListenersHeard = -1.0;
     plotManager().forgetAll();
+    System.out.println("   <GUIWorkspace handle BeforeLoadEvent");
   }
 
   /**

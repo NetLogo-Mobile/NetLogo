@@ -1,7 +1,7 @@
 // (C) Uri Wilensky. https://github.com/NetLogo/NetLogo
 
 package org.nlogo.app
-
+//import scala.util.matching.Regex
 import java.awt.{ Color, Component }
 import java.awt.event.{ ActionEvent, MouseEvent }
 import java.awt.print.PrinterAbortException
@@ -35,7 +35,7 @@ class Tabs(val workspace:       GUIWorkspace,
   with CompiledEvent.Handler
   with AfterLoadEvent.Handler
   with ExternalFileSavedEvent.Handler {
-
+  println("Tabs create class")
   locally {
     setOpaque(false)
     setFocusable(false)
@@ -70,9 +70,12 @@ class Tabs(val workspace:       GUIWorkspace,
   var dirtyMonitor: DirtyMonitor = null
 
   val infoTab = new InfoTab(workspace.attachModelDir(_))
+  println("   Tabs create MainCodeTab")
   val codeTab = new MainCodeTab(workspace, this, menu)
+  println("   Tabs done MainCodeTab")
   var externalFileTabs = Set.empty[TemporaryCodeTab]
   var currentTab: Component = interfaceTab
+
   var mainCodeTabOwner: JTabbedPane = this
 
   def getMainCodeTabOwner() : JTabbedPane = mainCodeTabOwner
@@ -94,25 +97,46 @@ class Tabs(val workspace:       GUIWorkspace,
   def setSelectedCodeTab(tab: CodeTab): Unit = {
     getCodeTabOwner(tab).setSelectedComponent(tab)
   }
+   mainCodeTabOwner = new JTabbedPane // aab
 
   def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
+    println("   Tabs init begins")
+    println("      add interface tab")
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
+    println("      Tabs info")
     addTab(I18N.gui.get("tabs.info"), infoTab)
+    println("      Tabs code")
     addTab(I18N.gui.get("tabs.code"), codeTab)
+    println("      Tabs add more")
     for((name, tab) <- moreTabs)
       addTab(name, tab)
-
+      println("      Tabs have been added")
     tabActions = TabsMenu.tabActions(this)
     fileManager = manager
     dirtyMonitor = monitor
     assert(fileManager != null && dirtyMonitor != null)
 
     saveModelActions foreach menu.offerAction
+    println("   Tabs init end")
+
+  }
+
+  def printComponent(cmp: Component, description: String): Unit = {
+    val pattern = """(^.*)\[(.*$)""".r
+    val pattern(name, _) = cmp.toString
+    val shortName = name.split("\\.").last
+    println(description + System.identityHashCode(cmp) +
+     ", " + shortName)
   }
 
   def stateChanged(e: ChangeEvent) = {
+    //println("   the tab: " + this)
+    println("   Tabs proc stateChanged: " )
     val previousTab = currentTab
     currentTab = getSelectedComponent
+
+    printComponent(previousTab, "      previous tab: ")
+    printComponent(currentTab, "       current tab: ")
     previousTab match {
       case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
       case _ =>
@@ -123,10 +147,11 @@ class Tabs(val workspace:       GUIWorkspace,
     }
     (previousTab.isInstanceOf[TemporaryCodeTab], currentTab.isInstanceOf[TemporaryCodeTab]) match {
       case (true, false) => saveModelActions foreach menu.offerAction
+      //case (true, true) => saveModelActions foreach menu.offerAction
       case (false, true) => saveModelActions foreach menu.revokeAction
       case _             =>
     }
-
+    println("       current tab request focus ")
     currentTab.requestFocus()
     new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
   }
@@ -134,9 +159,11 @@ class Tabs(val workspace:       GUIWorkspace,
   override def requestFocus() = currentTab.requestFocus()
 
   def handle(e: AboutToCloseFilesEvent) =
+    println("   Tabs handle AboutToCloseFilesEvent")
     OfferSaveExternalsDialog.offer(externalFileTabs filter (_.saveNeeded), this)
 
   def handle(e: LoadBeginEvent) = {
+    println("   Tabs handle LoadBeginEvent")
     setSelectedComponent(interfaceTab)
     externalFileTabs foreach { tab =>
       externalFileManager.remove(tab)
@@ -144,7 +171,8 @@ class Tabs(val workspace:       GUIWorkspace,
     }
   }
 
-  def handle(e: RuntimeErrorEvent) =
+  def handle(e: RuntimeErrorEvent) {
+    println("   Tabs handle RuntimeErrorEvent")
      if(!e.jobOwner.isInstanceOf[MonitorWidget])
         e.sourceOwner match {
           case `codeTab` =>
@@ -158,23 +186,43 @@ class Tabs(val workspace:       GUIWorkspace,
             highlightRuntimeError(tab, e)
           case _ =>
         }
+      }
 
   def highlightRuntimeError(tab: CodeTab, e: RuntimeErrorEvent) {
-    setSelectedCodeTab(tab)
+    println("   highlightRuntimeError tab: " + tab)
+    println("   RTE Jobowner: " + e.jobOwner + " sourceOwner:" + e.sourceOwner)
+    println("   pos: " + e.pos + " length: " + e.length)
+    //setSelectedCodeTab(tab)     // aab replacement
+    setSelectedComponent(tab)  // aab orig
     // the use of invokeLater here is a desperate attempt to work around the Mac bug where sometimes
     // the selection happens and sometime it doesn't - ST 8/28/04
     EventQueue.invokeLater(() => tab.select(e.pos, e.pos + e.length) )
   }
 
+  def printHandleCompiledEvent(e: CompiledEvent, inClass: String): Unit = {
+    println("   >" + inClass + " handle CompiledEvent")
+    println("     error: " + java.util.Objects.toString(e.error, "<null>"))
+    // println("   program: " + e.program) //seems to always be the same
+    println("     procedure: " + e.procedure)
+  }
+
   def handle(e: CompiledEvent) = {
+    printHandleCompiledEvent(e, "Tabs")
+
     val errorColor = Color.RED
-    def clearErrors() = forAllCodeTabs(tab =>
-      getCodeTabOwner(tab).setForegroundAt(
-        getCodeTabOwner(tab).indexOfComponent(tab), null))
-    def recolorTab(component: Component, hasError: Boolean): Unit =
-      getTabOwner(component).setForegroundAt(
-        getTabOwner(component).indexOfComponent(component),
-        if(hasError) errorColor else null)
+     // aab def clearErrors() = forAllCodeTabs(tab => setForegroundAt(indexOfComponent(tab), null))
+     def clearErrors() = forAllCodeTabs(tab => setForegroundAt(indexOfComponent(tab), null))
+     def recolorTab(component: Component, hasError: Boolean): Unit =
+        setForegroundAt(indexOfComponent(component), if(hasError) errorColor else null)
+        // aab changed versions
+    // def clearErrors() = forAllCodeTabs(tab =>
+    //   getCodeTabOwner(tab).setForegroundAt(
+    //     getCodeTabOwner(tab).indexOfComponent(tab), null))
+    // def recolorTab(component: Component, hasError: Boolean): Unit =
+    //   getTabOwner(component).setForegroundAt(
+    //     getTabOwner(component).indexOfComponent(component),
+    //     if(hasError) errorColor else null)
+
     def recolorInterfaceTab() = {
       if (e.error != null) setSelectedIndex(0)
       recolorTab(interfaceTab, e.error != null)
@@ -187,7 +235,8 @@ class Tabs(val workspace:       GUIWorkspace,
         if (e.error == null)
           clearErrors()
         else {
-          setSelectedCodeTab(codeTab)
+          //setSelectedCodeTab(codeTab)     // aab replacement
+          setSelectedComponent(codeTab)  // aab orig
           recolorTab(codeTab, true)
         }
         // I don't really know why this is necessary when you delete a slider (by using the menu
@@ -202,7 +251,8 @@ class Tabs(val workspace:       GUIWorkspace,
           tab = getTabWithFilename(Right(filename))
           tab.get.handle(e) // it was late to the party, let it handle the event too
         }
-        if (e.error != null) setSelectedCodeTab(tab.get)
+        // if (e.error != null) setSelectedCodeTab(tab.get) // aab replacement
+        if (e.error != null) setSelectedComponent(tab.get) // aab orig
         recolorTab(tab.get, e.error != null)
         requestFocus()
       case null => // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
@@ -211,14 +261,17 @@ class Tabs(val workspace:       GUIWorkspace,
         recolorInterfaceTab()
       case _ =>
     }
+    println("   <Tabs handle CompiledEvent")
   }
 
-  def handle(e: ExternalFileSavedEvent) =
+  def handle(e: ExternalFileSavedEvent) {
+    println("   Tabs handle ExternalFileSavedEvent")
     getTabWithFilename(Right(e.path)) foreach { tab =>
       val index = indexOfComponent(tab)
       setTitleAt(index, tab.filenameForDisplay)
       tabActions(index).putValue(Action.NAME, e.path)
     }
+  }
 
   def getSource(filename: String): String = getTabWithFilename(Right(filename)).map(_.innerSource).orNull
 
@@ -234,7 +287,8 @@ class Tabs(val workspace:       GUIWorkspace,
 
   def openExternalFile(filename: String) =
     getTabWithFilename(Right(filename)) match {
-      case Some(tab) => setSelectedCodeTab(tab)
+      //case Some(tab) => setSelectedCodeTab(tab)   // aab replacement
+      case Some(tab) => setSelectedComponent(tab) // aab orig
       case _ => addNewTab(Right(filename))
     }
 
@@ -245,7 +299,8 @@ class Tabs(val workspace:       GUIWorkspace,
     addTab(tab.filenameForDisplay, tab)
     addMenuItem(getTabCount - 1, tab.filenameForDisplay)
     Event.rehash()
-    setSelectedCodeTab(tab)
+    //setSelectedCodeTab(tab)     // aab replacement
+    setSelectedComponent(tab)  // aab orig
     // if I just call requestFocus the tab never gets the focus request because it's not yet
     // visible.  There might be a more swing appropriate way to do this but I can't figure it out
     // (if you know it feel free to fix) ev 7/24/07
@@ -289,7 +344,10 @@ class Tabs(val workspace:       GUIWorkspace,
     // platforms ev 2/2/09
   }
 
-  def handle(e: AfterLoadEvent) = requestFocus()
+  def handle(e: AfterLoadEvent) {
+    println("   Tabs handle AfterLoadEvent")
+    requestFocus()
+  }
 
 
   object SaveAllAction extends ExceptionCatchingAction(I18N.gui.get("menu.file.saveAll"), this)
@@ -319,4 +377,5 @@ class Tabs(val workspace:       GUIWorkspace,
         }
     }
   }
+  println("Tabs end")
 }

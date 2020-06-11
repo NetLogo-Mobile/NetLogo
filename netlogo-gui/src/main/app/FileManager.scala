@@ -35,8 +35,10 @@ object FileManager {
     @throws(classOf[UserCancelException])
     @throws(classOf[IOException])
     override def action(): Unit = {
+      println("      >object FileManager action")
       manager.aboutToCloseFiles()
       manager.newModel()
+      println("      <object FileManager action")
     }
   }
 
@@ -242,6 +244,7 @@ class FileManager(workspace: AbstractWorkspaceScala,
   parent: Container)
     extends OpenModelEvent.Handler
     with LoadModelEvent.Handler {
+  println("   >class FileManager ")
   private var firstLoad: Boolean = true
 
   val controller = new FileController(parent, workspace)
@@ -319,12 +322,14 @@ class FileManager(workspace: AbstractWorkspaceScala,
   @throws(classOf[UserCancelException])
   @throws(classOf[IOException])
   def newModel(): Unit = {
+    println("  >FileManager newModel")
     try {
       openFromModel(modelLoader.emptyModel(modelSuffix), getClass.getResource(emptyModelPath).toURI, ModelType.New)
     } catch  {
       case ex: URISyntaxException =>
         println("Unable to locate empty model: " + emptyModelPath)
     }
+    println("  <FileManager newModel")
   }
 
   @throws(classOf[UserCancelException])
@@ -352,6 +357,7 @@ class FileManager(workspace: AbstractWorkspaceScala,
         case _ =>
       }
     }
+    println("   <class FileManager ")
   }
 
   private def openFromModel( model: Model, uri: URI, modelType: ModelType

@@ -37,7 +37,7 @@ class InterfaceTab(workspace: GUIWorkspace,
   with SwitchedTabsEvent.Handler
   with NlogoPrintable
   with MenuTab {
-
+println("InterfaceTab create")
   setFocusCycleRoot(true)
   setFocusTraversalPolicy(new InterfaceTabFocusTraversalPolicy)
   commandCenter.locationToggleAction = new CommandCenterLocationToggleAction
@@ -72,16 +72,21 @@ class InterfaceTab(workspace: GUIWorkspace,
   add(splitPane, BorderLayout.CENTER)
 
   object TrackingFocusListener extends FocusListener {
+    println("   interfacetab TrackingFocusListener")
     var lastFocused = Option.empty[Component]
     override def focusGained(e: FocusEvent): Unit = {
+      println("       interfacetab focusGained")
       lastFocused = Some(e.getSource.asInstanceOf[Component])
     }
-    override def focusLost(e: FocusEvent): Unit = { }
+    override def focusLost(e: FocusEvent): Unit = {
+      println("       interfacetab focusLost")
+    }
   }
 
   locally {
     import WidgetInfo._
     val buttons = List(button, slider, switch, chooser, input, monitor, plot, output, note)
+    println("   add InterfaceToolBar")
     add(new InterfaceToolBar(iP, workspace, buttons, workspace.getFrame, dialogFactory) {
       override def addControls() {
         super.addControls()
@@ -90,7 +95,9 @@ class InterfaceTab(workspace: GUIWorkspace,
         add(viewUpdatePanel)
       }
     }, BorderLayout.NORTH)
+    println("   add FocusListener")
     iP.addFocusListener(TrackingFocusListener)
+      println("   cc add FocusListener")
     commandCenter.getDefaultComponentForFocus.addFocusListener(TrackingFocusListener)
   }
 
@@ -111,11 +118,13 @@ class InterfaceTab(workspace: GUIWorkspace,
   // to prevent keyboard shortcuts (copy, cut, paste) from affecting
   // the code tab or wherever the cursor was before the user switched - RG 2/16/18
   override def requestFocus() {
+    println("     !InterfaceTab requestFocus")
     commandCenter.requestFocusInWindow()
     TrackingFocusListener.lastFocused.getOrElse(commandCenter).requestFocusInWindow()
   }
 
   final def handle(e: SwitchedTabsEvent) {
+    println("   InterfaceTab handle SwitchedTabsEvent")
     commandCenter.requestFocusInWindow()
     TrackingFocusListener.lastFocused.getOrElse(commandCenter).requestFocusInWindow()
     if (e.newTab != this) {
@@ -124,6 +133,7 @@ class InterfaceTab(workspace: GUIWorkspace,
   }
 
   def handle(e: LoadBeginEvent) {
+    println("   InterfaceTab handle LoadBeginEvent")
     scrollPane.getHorizontalScrollBar.setValue(0)
     scrollPane.getVerticalScrollBar.setValue(0)
   }
@@ -189,6 +199,7 @@ class InterfaceTab(workspace: GUIWorkspace,
 
   class CommandCenterToggleAction extends AbstractAction(I18N.gui.get("menu.tools.hideCommandCenter"))
   with MenuAction {
+    println("   InterfaceTab CommandCenterToggleAction")
     category    = ToolsCategory
     group       = MenuGroup
     accelerator = UserAction.KeyBindings.keystroke('/', withMenu = true)
@@ -210,6 +221,7 @@ class InterfaceTab(workspace: GUIWorkspace,
 
   class JumpToCommandCenterAction extends AbstractAction(I18N.gui.get("menu.tools.jumpToCommandCenter"))
   with MenuAction {
+    println("   InterfaceTab JumpToCommandCenterAction")
     category    = ToolsCategory
     group       = MenuGroup
     accelerator = UserAction.KeyBindings.keystroke('C', withMenu = true, withShift = true)
@@ -233,4 +245,5 @@ class InterfaceTab(workspace: GUIWorkspace,
       targetSize.width += commandCenter.getSize().width - commandCenter.getPreferredSize.width
     else targetSize.height += commandCenter.getSize().height - commandCenter.getPreferredSize.height
   }
+  println("InterfaceTab done")
 }

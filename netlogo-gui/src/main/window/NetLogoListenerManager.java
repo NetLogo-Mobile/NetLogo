@@ -24,10 +24,13 @@ public strictfp class NetLogoListenerManager
   private final List<NetLogoListener> listeners =
       new ArrayList<NetLogoListener>();
 
+
   public void handle(BeforeLoadEvent e) {
-    for (NetLogoListener listener : listeners) {
-      listener.modelOpened(e.modelPath.getOrElse(() -> "new model"));
-    }
+      System.out.println("   >NetLogoListenerManager handle BeforeLoadEvent");
+      for (NetLogoListener listener : listeners) {
+        listener.modelOpened(e.modelPath.getOrElse(() -> "new model"));
+      }
+      System.out.println("   <NetLogoListenerManager handle BeforeLoadEvent");
   }
 
   public void handle(AddJobEvent e) {

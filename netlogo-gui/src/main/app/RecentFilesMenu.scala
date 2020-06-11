@@ -142,12 +142,14 @@ class RecentFilesMenu(frame: AppFrame, fileManager: FileManager)
 
   // Add models to list when new models are opened
   def handle(e: BeforeLoadEvent) {
+    println("   >RecentFilesMenu handle BeforeLoadEvent")
     if (e.modelType != ModelType.New) {
       for (p <- e.modelPath) {
         recentFiles.add(ModelEntry(p, e.modelType))
         refreshMenu()
       }
     }
+    println("   <RecentFilesMenu handle BeforeLoadEvent")
   }
 
   def computeActions: Seq[Action] = {
