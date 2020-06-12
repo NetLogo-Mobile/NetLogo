@@ -35,9 +35,9 @@ with WindowEvents.CompiledEvent.Handler {
   def updateVisibility(): Unit = {
     println("   >IncludedFilesMenu updateVisibility")
     isEmpty = includesTable.isEmpty
-    println("   >IncludedFilesMenu revalidate")
+    println("   =IncludedFilesMenu revalidate")
     revalidate()
-    println("   >IncludedFilesMenu doLayout")
+    println("   =IncludedFilesMenu doLayout")
     super.doLayout()
     println("   <IncludedFilesMenu updateVisibility")
   }
