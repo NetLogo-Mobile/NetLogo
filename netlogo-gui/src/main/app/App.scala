@@ -2,14 +2,17 @@
 
 package org.nlogo.app
 
-import javax.swing.{ JDialog, JFrame, JOptionPane, JMenu, JTabbedPane, SwingConstants, WindowConstants }
+// aab import javax.swing.{ JDialog, JFrame, JOptionPane, JMenu, JTabbedPane, SwingConstants, WindowConstants }
+
+import javax.swing.{ JOptionPane, JMenu }
 import java.awt.event.ActionEvent
 
 import org.nlogo.agent.{ Agent, World2D, World3D }
-import java.awt.{ BorderLayout, Dimension, Frame, Toolkit, Window }
+// aab import java.awt.{ BorderLayout, Dimension, Frame, Toolkit, Window }
+import java.awt.{ Dimension, Frame, Toolkit }
 import java.awt.Component
 import org.nlogo.api._
-import org.nlogo.app.codetab.{ ExternalFileManager, TemporaryCodeTab }
+import org.nlogo.app.codetab.{ ExternalFileManager, TabManager, TemporaryCodeTab }
 import org.nlogo.app.common.{ CodeToHtml, Events => AppEvents, FileActions, FindDialog, SaveModelingCommonsAction }
 import org.nlogo.app.interfacetab.{ InterfaceToolBar, WidgetPanel }
 import org.nlogo.app.tools.{ AgentMonitorManager, GraphicsPreview, LibraryManagerErrorDialog, PreviewCommandsEditor }
@@ -153,6 +156,8 @@ object App{
     pico.add("org.nlogo.app.interfacetab.InterfaceTab")
     println("App pico Tabs")
     pico.addComponent(classOf[Tabs])
+    println("App pico MainCodeTabPanel")
+    pico.addComponent(classOf[MainCodeTabPanel])
     println("App pico AgentMonitorManager")
     pico.addComponent(classOf[AgentMonitorManager])
     println("App pico App")
@@ -260,7 +265,11 @@ class App extends
   def workspace = _workspace
   lazy val owner = new SimpleJobOwner("App", workspace.world.mainRNG, AgentKind.Observer)
   private var _tabs: Tabs = null
+  private var _mainCodeTabPanel: MainCodeTabPanel = null
+  private var _tabManager = new TabManager(_tabs, _mainCodeTabPanel)
   def tabs = _tabs
+  def mainCodeTabPanel = _MainCodeTabPanel
+  def tabManager = _tabManager
   var menuBar: MenuBar = null
   var _fileManager: FileManager = null
   var monitorManager: AgentMonitorManager = null
@@ -405,20 +414,6 @@ class App extends
 
   }
 
-  def initCodeContainer(frame: JFrame): (Window, JTabbedPane) = {
-    val codeTabContainer = new JDialog(frame, I18N.gui.get("tabs.code"))
-    //codeTabContainer.setModalityType(Dialog.ModalityType.MODELESS)
-    codeTabContainer.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE)
-    val codeTabbedPane = new JTabbedPane(SwingConstants.TOP)
-    codeTabContainer.add(codeTabbedPane, BorderLayout.CENTER)
-    codeTabContainer.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE)
-    //codeTabContainer.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE)
-    codeTabContainer.setSize(new Dimension(600, 400))
-    codeTabContainer.setLocationRelativeTo(null)
-    codeTabContainer.setVisible(true)
-    (codeTabContainer, codeTabbedPane)
-  }
-
   private def finishStartup(appHandler: Object) {
     println("<finishStartup begin")
     val app = pico.getComponent(classOf[App])
@@ -493,18 +488,18 @@ class App extends
 
     println("  =finishStartup  FindDialog init")
     org.nlogo.app.common.FindDialog.init(frame)
-    if (false) {
-    println("  =finishStartup about to create code container")
-    val (codeTabContainer, codeTabbedPane) = initCodeContainer(frame)
-      println("  =finishStartup done create code container")
-    }
+    //if (true) { // aab
+    // println("  =finishStartup about to create code container")
+    // val (codeTabContainer, codeTabbedPane) = initCodeContainer(frame)
+    //   println("  =finishStartup done create code container")
+    //}
     Splash.endSplash()
     frame.setVisible(true)
-    if (false) {
-      println("  =finishStartup about to codeTabbedPane.add" )
-      //codeTabbedPane.add(tabs.codeTab)
-      //tabs.setMainCodeTabOwner(codeTabbedPane)
-    }
+    // if (true) { // aab
+    //   println("  =finishStartup about to codeTabbedPane.add" )
+    //   codeTabbedPane.add(tabs.codeTab)
+    //   //tabs.setMainCodeTabOwner(codeTabbedPane)
+    // }
     if (isMac) {
       appHandler.getClass.getDeclaredMethod("ready", classOf[AnyRef]).invoke(appHandler, this)
     }

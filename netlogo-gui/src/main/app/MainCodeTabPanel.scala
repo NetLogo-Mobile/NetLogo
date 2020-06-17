@@ -2,21 +2,19 @@
 
 package org.nlogo.app
 //import scala.util.matching.Regex
-import java.awt.{ Color, Component }
-// aab import java.awt.{ BorderLayout, Color, Component, Dimension, Window }
+import java.awt.{ BorderLayout, Color, Component, Dimension, Window }
+//import java.awt.{ Color, Component }
+
 import java.awt.event.{ ActionEvent, MouseEvent }
 import java.awt.print.PrinterAbortException
 // aabimport java.awt.{ BorderLayout, Dimension, Frame, Toolkit, Window }
-import javax.swing.{ AbstractAction, Action, JTabbedPane, SwingConstants }
-
 import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.plaf.ComponentUI
-// aab import javax.swing.{ AbstractAction, Action, JDialog, JFrame, JTabbedPane, SwingConstants, WindowConstants }
-import javax.swing.{ AbstractAction, Action, JTabbedPane, SwingConstants }
-import org.nlogo.api.Exceptions
-import org.nlogo.app.codetab.{ CodeTab, ExternalFileManager, TemporaryCodeTab }
+import javax.swing.{ AbstractAction, Action, JDialog, JFrame, JTabbedPane, SwingConstants, WindowConstants }
+// aab import javax.swing.{ AbstractAction, Action, JTabbedPane, SwingConstants }
 
-// import org.nlogo.app.codetab.{ CodeTab, ExternalFileManager, MainCodeTab, TemporaryCodeTab }
+import org.nlogo.api.Exceptions
+import org.nlogo.app.codetab.{ CodeTab, ExternalFileManager, MainCodeTab, TabManager, TemporaryCodeTab }
 import org.nlogo.app.common.{ ExceptionCatchingAction, MenuTab, TabsInterface, Events => AppEvents },
   TabsInterface.Filename
 import org.nlogo.app.infotab.InfoTab
@@ -28,7 +26,7 @@ import org.nlogo.window.Event.LinkParent
 import org.nlogo.window.Events._
 import org.nlogo.window.{ Event, ExternalFileInterface, GUIWorkspace, JobWidget, MonitorWidget }
 
-class Tabs(val workspace:       GUIWorkspace,
+class MainCodeTabPanel(val workspace:       GUIWorkspace,
            val interfaceTab:    InterfaceTab,
            private var menu:    MenuBar,
            externalFileManager: ExternalFileManager)
@@ -41,7 +39,7 @@ class Tabs(val workspace:       GUIWorkspace,
   with CompiledEvent.Handler
   with AfterLoadEvent.Handler
   with ExternalFileSavedEvent.Handler {
-  println("Tabs create class")
+  println("MainCodeTabPanel create class")
   locally {
     setOpaque(false)
     setFocusable(false)
@@ -55,6 +53,13 @@ class Tabs(val workspace:       GUIWorkspace,
       }
     }
   }
+
+  val tabManager: TabManager = null
+  def setTabManager( tabManager: TabManager ) {
+    this.tabManager = tabManager
+  }
+
+  def getTabManager() = tabManager
 
   def setMenu(newMenu: MenuBar): Unit = {
     val menuItems = permanentMenuActions ++ (currentTab match {
@@ -77,32 +82,49 @@ class Tabs(val workspace:       GUIWorkspace,
 
   val infoTab = new InfoTab(workspace.attachModelDir(_))
   var externalFileTabs = Set.empty[TemporaryCodeTab]
-  var currentTab: Component = interfaceTab
 
+  // Frame is the main app frame, which is the container for the
+  // JDialog that contains the code tab and its JTabbedPane
+  // val frame = (javax.swing.JFrame) workspace.getFrame
+  val frame = workspace.getFrame.asInstanceOf[JFrame]
+  val codeTabContainer = initCodeContainer(frame)
+  codeTabContainer.add(codeTabbedPane, BorderLayout.CENTER)
 
-  val codeTab = new CodeTab(workspace, this)
-  println("   Tabs done MainCodeTab")
+  // println("  =MainCodeTabPanel about to codeTabbedPane.add" )
+  println("   MainCodeTabPanel create MainCodeTab")
+  val codeTab = new MainCodeTab(workspace, this, menu)
+  println("   MainCodeTabPanel done MainCodeTab")
+  this.add(tabs.codeTab)
+  var currentTab: Component = codeTab
 
+  def initCodeContainer(frame: JFrame): Window = {
+    println("initCodeContainer")
+    val codeTabContainer = new JDialog(frame, I18N.gui.get("tabs.code"))
+    //codeTabContainer.setModalityType(Dialog.ModalityType.MODELESS)
+    codeTabContainer.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE)
+    codeTabContainer.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE)
+    //codeTabContainer.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE)
+    codeTabContainer.setSize(new Dimension(600, 400))
+    codeTabContainer.setLocationRelativeTo(null)
+    codeTabContainer.setVisible(true)
+    codeTabContainer
+  }
 
   def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
-    println("   Tabs init begins")
-    println("      add interface tab")
-    addTab(I18N.gui.get("tabs.run"), interfaceTab)
-    println("      Tabs info")
-    addTab(I18N.gui.get("tabs.info"), infoTab)
-    // aab println("      Tabs code")
-    // aab addTab(I18N.gui.get("tabs.code"), codeTab)
-    println("      Tabs add more")
-    for((name, tab) <- moreTabs)
-      addTab(name, tab)
-      println("      Tabs have been added")
+    println("   MainCodeTabPanel init begins")
+    println("      MainCodeTabPanel code")
+    addTab(I18N.gui.get("tabs.code"), codeTab)
+    println("      MainCodeTabPanel add more")
+    // for((name, tab) <- moreTabs)
+    //   addTab(name, tab)
+    //   println("      MainCodeTabPanel have been added")
     tabActions = TabsMenu.tabActions(this)
     fileManager = manager
     dirtyMonitor = monitor
     assert(fileManager != null && dirtyMonitor != null)
 
     saveModelActions foreach menu.offerAction
-    println("   Tabs init end")
+    println("   MainCodeTabPanel init end")
 
   }
 
@@ -116,7 +138,7 @@ class Tabs(val workspace:       GUIWorkspace,
 
   def stateChanged(e: ChangeEvent) = {
     //println("   the tab: " + this)
-    println("   Tabs proc stateChanged: " )
+    println("   MainCodeTabPanel proc stateChanged: " )
     val previousTab = currentTab
     currentTab = getSelectedComponent // aab fix
 
@@ -144,11 +166,11 @@ class Tabs(val workspace:       GUIWorkspace,
   override def requestFocus() = currentTab.requestFocus()
 
   def handle(e: AboutToCloseFilesEvent) =
-    println("   Tabs handle AboutToCloseFilesEvent")
+    println("   MainCodeTabPanel handle AboutToCloseFilesEvent")
     OfferSaveExternalsDialog.offer(externalFileTabs filter (_.saveNeeded), this)
 
   def handle(e: LoadBeginEvent) = {
-    println("   Tabs handle LoadBeginEvent")
+    println("   MainCodeTabPanel handle LoadBeginEvent")
     setSelectedComponent(interfaceTab)
     externalFileTabs foreach { tab =>
       externalFileManager.remove(tab)
@@ -157,7 +179,7 @@ class Tabs(val workspace:       GUIWorkspace,
   }
 
   def handle(e: RuntimeErrorEvent) {
-    println("   Tabs handle RuntimeErrorEvent")
+    println("   MainCodeTabPanel handle RuntimeErrorEvent")
      if(!e.jobOwner.isInstanceOf[MonitorWidget])
         e.sourceOwner match {
           case `codeTab` =>
@@ -246,11 +268,11 @@ class Tabs(val workspace:       GUIWorkspace,
         recolorInterfaceTab()
       case _ =>
     }
-    println("   <Tabs handle CompiledEvent")
+    println("   <MainCodeTabPanel handle CompiledEvent")
   }
 
   def handle(e: ExternalFileSavedEvent) {
-    println("   Tabs handle ExternalFileSavedEvent")
+    println("   MainCodeTabPanel handle ExternalFileSavedEvent")
     getTabWithFilename(Right(e.path)) foreach { tab =>
       val index = indexOfComponent(tab)
       setTitleAt(index, tab.filenameForDisplay)
@@ -330,7 +352,7 @@ class Tabs(val workspace:       GUIWorkspace,
   }
 
   def handle(e: AfterLoadEvent) {
-    println("   Tabs handle AfterLoadEvent")
+    println("   MainCodeTabPanel handle AfterLoadEvent")
     requestFocus()
   }
 

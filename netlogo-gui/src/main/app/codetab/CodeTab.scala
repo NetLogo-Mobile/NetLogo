@@ -93,7 +93,7 @@ with MenuTab {
   }
 
 // getToolBar is a method that creates an instantiation of the
-// abstract class ToolBar, bu providing an implemention of addControls
+// abstract class ToolBar, by providing an implemention of addControls
   def getToolBar = new ToolBar {
     println("     >codetab, gettoolbar new ToolBar")
     override def addControls() {
