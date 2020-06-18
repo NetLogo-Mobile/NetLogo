@@ -32,6 +32,8 @@ with MenuTab {
   private var _dirty = false
   def dirty = _dirty
 
+//  def smartTabbingEnabled = false  // aab check this
+
   protected def dirty_=(b: Boolean) = {
     CompileAction.setDirty(b)
     _dirty = b

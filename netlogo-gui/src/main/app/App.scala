@@ -2,17 +2,14 @@
 
 package org.nlogo.app
 
-// aab import javax.swing.{ JDialog, JFrame, JOptionPane, JMenu, JTabbedPane, SwingConstants, WindowConstants }
-
 import javax.swing.{ JOptionPane, JMenu }
 import java.awt.event.ActionEvent
 
 import org.nlogo.agent.{ Agent, World2D, World3D }
-// aab import java.awt.{ BorderLayout, Dimension, Frame, Toolkit, Window }
 import java.awt.{ Dimension, Frame, Toolkit }
 import java.awt.Component
 import org.nlogo.api._
-import org.nlogo.app.codetab.{ ExternalFileManager, TabManager, TemporaryCodeTab }
+import org.nlogo.app.codetab.{ ExternalFileManager, TemporaryCodeTab }
 import org.nlogo.app.common.{ CodeToHtml, Events => AppEvents, FileActions, FindDialog, SaveModelingCommonsAction }
 import org.nlogo.app.interfacetab.{ InterfaceToolBar, WidgetPanel }
 import org.nlogo.app.tools.{ AgentMonitorManager, GraphicsPreview, LibraryManagerErrorDialog, PreviewCommandsEditor }
@@ -266,9 +263,9 @@ class App extends
   lazy val owner = new SimpleJobOwner("App", workspace.world.mainRNG, AgentKind.Observer)
   private var _tabs: Tabs = null
   private var _mainCodeTabPanel: MainCodeTabPanel = null
-  private var _tabManager = new TabManager(_tabs, _mainCodeTabPanel)
+  private var _tabManager : AppTabManager= null
   def tabs = _tabs
-  def mainCodeTabPanel = _MainCodeTabPanel
+  def mainCodeTabPanel = _mainCodeTabPanel
   def tabManager = _tabManager
   var menuBar: MenuBar = null
   var _fileManager: FileManager = null
@@ -394,6 +391,8 @@ class App extends
 
     _tabs = pico.getComponent(classOf[Tabs])
     controlSet.tabs = Some(_tabs)
+    _mainCodeTabPanel = pico.getComponent(classOf[MainCodeTabPanel])
+    _tabManager = new AppTabManager(_tabs, _mainCodeTabPanel)
 
     pico.addComponent(tabs.interfaceTab.getInterfacePanel)
     frame.getContentPane.add(tabs, java.awt.BorderLayout.CENTER)
@@ -459,6 +458,8 @@ class App extends
     frame.addLinkComponent(viewManager)
     println("  =finishStartup  tabs,init")
     tabs.init(fileManager, dirtyMonitor, Plugins.load(pico): _*)
+    println("  =finishStartup  mainCodeTabPanel,init")
+    mainCodeTabPanel.init(fileManager, dirtyMonitor, Plugins.load(pico): _*)
     println("  =finishStartup  app.set menubar")
     app.setMenuBar(menuBar)
     println("  =finishStartup  frame.setjmenubar")
@@ -488,18 +489,9 @@ class App extends
 
     println("  =finishStartup  FindDialog init")
     org.nlogo.app.common.FindDialog.init(frame)
-    //if (true) { // aab
-    // println("  =finishStartup about to create code container")
-    // val (codeTabContainer, codeTabbedPane) = initCodeContainer(frame)
-    //   println("  =finishStartup done create code container")
-    //}
+
     Splash.endSplash()
     frame.setVisible(true)
-    // if (true) { // aab
-    //   println("  =finishStartup about to codeTabbedPane.add" )
-    //   codeTabbedPane.add(tabs.codeTab)
-    //   //tabs.setMainCodeTabOwner(codeTabbedPane)
-    // }
     if (isMac) {
       appHandler.getClass.getDeclaredMethod("ready", classOf[AnyRef]).invoke(appHandler, this)
     }

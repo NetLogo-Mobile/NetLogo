@@ -9,7 +9,6 @@ import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.plaf.ComponentUI
 import javax.swing.{ AbstractAction, Action, JTabbedPane, SwingConstants }
 import org.nlogo.api.Exceptions
-import org.nlogo.app.TabManager
 import org.nlogo.app.codetab.{ CodeTab, ExternalFileManager, TemporaryCodeTab }
 import org.nlogo.app.common.{ ExceptionCatchingAction, MenuTab, TabsInterface, Events => AppEvents },
   TabsInterface.Filename
@@ -50,8 +49,9 @@ class AbstractTabs(val workspace:       GUIWorkspace,
     }
   }
 
-  private var tabManager: TabManager = null
-  def setTabManager( myTabManager: TabManager ) {
+  private var tabManager: AppTabManager = null
+
+  def setTabManager( myTabManager: AppTabManager ) {
     tabManager = myTabManager
   }
 
@@ -80,7 +80,7 @@ class AbstractTabs(val workspace:       GUIWorkspace,
   var currentTab: Component = interfaceTab
 
 
-  val codeTab = new CodeTab(workspace, this)
+  val codeTab = new CodeTab(workspace, this) {}
   println("  done MainCodeTab")
 
 
@@ -177,7 +177,7 @@ class AbstractTabs(val workspace:       GUIWorkspace,
     println("   highlightRuntimeError tab: " + tab)
     println("   RTE Jobowner: " + e.jobOwner + " sourceOwner:" + e.sourceOwner)
     println("   pos: " + e.pos + " length: " + e.length)
-    setSelectedCodeTab(tab)     // aab replacement
+    tabManager.setSelectedCodeTab(tab)     // aab replacement
     //setSelectedComponent(tab)  // aab orig
     // the use of invokeLater here is a desperate attempt to work around the Mac bug where sometimes
     // the selection happens and sometime it doesn't - ST 8/28/04
@@ -195,14 +195,9 @@ class AbstractTabs(val workspace:       GUIWorkspace,
     printHandleCompiledEvent(e, "Tabs")
 
     val errorColor = Color.RED
-     // aab def clearErrors() = forAllCodeTabs(tab => setForegroundAt(indexOfComponent(tab), null))
-     // def clearErrors() = forAllCodeTabs(tab => setForegroundAt(indexOfComponent(tab), null))
-     // def recolorTab(component: Component, hasError: Boolean): Unit =
-     //    setForegroundAt(indexOfComponent(component), if(hasError) errorColor else null)
-    //    aab changed versions
     def clearErrors() = forAllCodeTabs(tab =>
-      tabManager.getCodeTabOwner(tab).setForegroundAt(
-        tabManager.getCodeTabOwner(tab).indexOfComponent(tab), null))
+      tabManager.getTabOwner(tab).setForegroundAt(
+      tabManager.getTabOwner(tab).indexOfComponent(tab), null))
     def recolorTab(component: Component, hasError: Boolean): Unit =
       tabManager.getTabOwner(component).setForegroundAt(
         tabManager.getTabOwner(component).indexOfComponent(component),
@@ -220,7 +215,7 @@ class AbstractTabs(val workspace:       GUIWorkspace,
         if (e.error == null)
           clearErrors()
         else {
-          setSelectedCodeTab(codeTab)     // aab replacement
+          tabManager.setSelectedCodeTab(codeTab)     // aab replacement
           // setSelectedComponent(codeTab)  // aab orig
           recolorTab(codeTab, true)
         }
@@ -236,7 +231,7 @@ class AbstractTabs(val workspace:       GUIWorkspace,
           tab = getTabWithFilename(Right(filename))
           tab.get.handle(e) // it was late to the party, let it handle the event too
         }
-        // if (e.error != null) setSelectedCodeTab(tab.get) // aab replacement
+        // if (e.error != null) tabManager.setSelectedCodeTab(tab.get) // aab replacement
         if (e.error != null) setSelectedComponent(tab.get) // aab orig
         recolorTab(tab.get, e.error != null)
         requestFocus()
@@ -272,19 +267,25 @@ class AbstractTabs(val workspace:       GUIWorkspace,
 
   def openExternalFile(filename: String) =
     getTabWithFilename(Right(filename)) match {
-      case Some(tab) => setSelectedCodeTab(tab)   // aab replacement
+      case Some(tab) =>tabManager.setSelectedCodeTab(tab)   // aab replacement
       //case Some(tab) => setSelectedComponent(tab) // aab orig
       case _ => addNewTab(Right(filename))
     }
 
   def addNewTab(name: Filename) = {
-    val tab = new TemporaryCodeTab(workspace, this, name, externalFileManager, fileManager.convertTabAction _, codeTab.smartTabbingEnabled)
+    val tab = new TemporaryCodeTab(workspace,
+      this,
+      name,
+      externalFileManager,
+      fileManager.convertTabAction _,
+      false)
+  //aab    codeTab.smartTabbingEnabled)
     if (externalFileTabs.isEmpty) menu.offerAction(SaveAllAction)
     externalFileTabs += tab
     addTab(tab.filenameForDisplay, tab)
     addMenuItem(getTabCount - 1, tab.filenameForDisplay)
     Event.rehash()
-    setSelectedCodeTab(tab)     // aab replacement
+  tabManager.setSelectedCodeTab(tab)     // aab replacement
     //setSelectedComponent(tab)  // aab orig
     // if I just call requestFocus the tab never gets the focus request because it's not yet
     // visible.  There might be a more swing appropriate way to do this but I can't figure it out

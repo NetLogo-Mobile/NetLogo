@@ -14,7 +14,9 @@ import org.nlogo.window.{ Events => WindowEvents, GUIWorkspace }
 // This is THE Code tab.  Certain settings and things that are only accessible here.
 // Other Code tabs come and go.
 
-class MainCodeTab(workspace: GUIWorkspace, tabs: TabsInterface, editorMenu: EditorMenu)
+class MainCodeTab(workspace: GUIWorkspace,
+  tabs: TabsInterface,
+  editorMenu: EditorMenu)
 extends CodeTab(workspace, tabs)
 with WindowEvents.LoadModelEvent.Handler
 {
