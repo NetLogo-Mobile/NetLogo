@@ -33,7 +33,7 @@ class InfoTab(attachModelDir: String => String)
   with WindowEvents.LoadModelEvent.Handler
   with WindowEvents.ZoomedEvent.Handler
   with Zoomable {
-  println("InfoTab create")
+
   val baseDocPath: Path = docPath("infotab.html")
 
   private val undoManager = new UndoManager
@@ -89,7 +89,6 @@ class InfoTab(attachModelDir: String => String)
   locally {
     resetBorders()
     setLayout(new BorderLayout)
-    println("   InfoTab new ToolBar")
     add(new ToolBar() {
       override def addControls() {
         this.addAll(new ToolBarActionButton(FindDialog.FIND_ACTION), editableButton, helpButton)
@@ -214,5 +213,4 @@ class InfoTab(attachModelDir: String => String)
       org.nlogo.awt.EventQueue.invokeLater(() => scrollBar.setValue((ratio * (max - min)).toInt))
     }
   }
-  println("InfoTab done")
 }

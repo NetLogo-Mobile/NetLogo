@@ -25,7 +25,6 @@ object ToolBar {
 }
 
 abstract class ToolBar extends JToolBar {
-  println("     >abstract ToolBar create")
   setFloatable(false)
   setLayout(new RowLayout(5,Component.LEFT_ALIGNMENT,Component.CENTER_ALIGNMENT))
 
@@ -34,9 +33,7 @@ abstract class ToolBar extends JToolBar {
   // we add the controls at addNotify time so that subclasses have the chance to fully construct
   // themselves before addControls() is called - ST 9/2/03
   override def addNotify(){
-    //println("      >abstract ToolBar AddNotify")
     super.addNotify()
-    println("    =abstract ToolBar AddNotify, addControls")
     addControls()
     for(comp<-getComponents) {
       comp.setFocusable(false)
@@ -48,7 +45,5 @@ abstract class ToolBar extends JToolBar {
       comp.setVerticalTextPosition(SwingConstants.BOTTOM)
       comp.setHorizontalTextPosition(SwingConstants.CENTER)
     }
-        //println("      < done abstract ToolBar AddNotify")
   }
-  println("     <abstract ToolBar done")
 }

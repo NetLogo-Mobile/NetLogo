@@ -92,14 +92,12 @@ with SaveModel.Controller
   }
 
   def handle(e: AfterLoadEvent): Unit = {
-    println("   >DirtyMonitor handle AfterLoadEvent")
     setDirty(false)
     loading = false
     Exceptions.ignoring(classOf[IOException]) {
       priorTempFile.foreach(Files.deleteIfExists)
     }
     priorTempFile = TempFileModelTracker.getModelFileUri.flatMap(u => Try(Paths.get(u)).toOption)
-    println("   <DirtyMonitor handle AfterLoadEvent")
   }
 
   /// how we get dirty

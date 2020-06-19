@@ -14,10 +14,8 @@ import org.nlogo.core.Model
 import scala.util.Try
 
 object ReconfigureWorkspaceUI {
-  println("     >ReconfigureWorkspaceUI object begin")
   def apply(linkParent: Container, uri: URI, modelType: ModelType, model: Model,
     compilerServices: CompilerServices, shouldAutoInstallLibs: Boolean = false): Unit = {
-      println("       >ReconfigureWorkspaceUI object apply")
       new Loader(linkParent).loadHelper(uri, modelType, model, compilerServices, shouldAutoInstallLibs)
   }
 
@@ -26,7 +24,6 @@ object ReconfigureWorkspaceUI {
 
     def loadHelper( modelURI: URI, modelType: ModelType, model: Model, compilerServices: CompilerServices
                   , shouldAutoInstallLibs: Boolean = false) {
-                    println("       <loadHelper ReconfigureWorkspaceUI ")
       val uriOption = Try(Paths.get(modelURI)).toOption
         .filterNot(p => p.getFileName.toString.startsWith("empty.nlogo"))
         .filter(p => Files.isRegularFile(p))
@@ -40,13 +37,8 @@ object ReconfigureWorkspaceUI {
         new LoadWidgetsEvent(model.widgets))
 
       val afterEvents = List(new LoadEndEvent(), new AfterLoadEvent())
-
-      println("         = loadHelper raise load related events")
-      println("         = loadHelperBeforeLoadEvent, LoadBeginEvent, LoadModelEvent, " +
-        "LoadWidgetsEvent, LoadEndEvent, AfterLoadEvent ")
       // fire missles! (actually, just fire the events...)
       for (e <- beforeEvents ::: loadSectionEvents ::: afterEvents) e.raise(this)
-      println("       <loadHelper ReconfigureWorkspaceUI ")    }
+    }
   }
-    println("     >ReconfigureWorkspaceUI object end")
 }
