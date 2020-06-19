@@ -15,17 +15,18 @@ class Tabs(workspace:       GUIWorkspace,
            externalFileManager: ExternalFileManager)
   extends AbstractTabs(workspace,
       interfaceTab, menu, externalFileManager) {
-  println("Tabs create class")
+  println(">Tabs")
 
   override def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
-    println("   Tabs init begins")
-    println("      add interface tab")
+    println("   >Tabs.init")
+        //  println("      Thread.currentThread: " +  Thread.currentThread)
+    //  println("      add interface tab")
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
-    println("      Tabs info")
+    //  println("      Tabs info")
     addTab(I18N.gui.get("tabs.info"), infoTab)
     // aab println("      Tabs code")
     // aab addTab(I18N.gui.get("tabs.code"), codeTab)
-    println("      Tabs add more")
+    //  println("      Tabs add more")
     for((name, tab) <- moreTabs)
       addTab(name, tab)
       println("      Tabs have been added")
@@ -35,10 +36,10 @@ class Tabs(workspace:       GUIWorkspace,
     assert(fileManager != null && dirtyMonitor != null)
 
     saveModelActions foreach menu.offerAction
-    println("   Tabs init end")
+    println("   <Tabs.init")
 
   }
 
 
-  println("Tabs end")
+  println("<Tabs")
 }

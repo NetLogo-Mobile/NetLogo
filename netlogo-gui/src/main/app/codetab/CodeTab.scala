@@ -28,7 +28,7 @@ with Zoomable
 with NlogoPrintable
 with MenuTab {
 
-  println("CodeTab create ")
+  println("  >codeTab")
   private var _dirty = false
   def dirty = _dirty
 
@@ -51,7 +51,7 @@ with MenuTab {
       .withListener(listener)
 
   val text = {
-    println("   creating an editor in CodeTab")
+    // aab println("   creating an editor in CodeTab")
     val editor = editorFactory.newEditor(editorConfiguration, true)
     editor.setMargin(new Insets(4, 7, 4, 7))
     editor
@@ -74,9 +74,9 @@ with MenuTab {
   override def zoomTarget = text
 
   val errorLabel = new CommentableError(text)
-  println("   >CodeTab, about to getToolBar")
+  // aab println("   >CodeTab, about to getToolBar")
   val toolBar = getToolBar
-  println("   <CodeTab, getToolBar done")
+  // aab println("   <CodeTab, getToolBar done")
   val scrollableEditor = editorFactory.scrollPane(text)
   def compiler = workspace
   def program = workspace.world.program
@@ -84,10 +84,10 @@ with MenuTab {
   locally {
     setIndenter(false)
     setLayout(new BorderLayout)
-    println("   CodeTab, add toolBar to layout")
+    // aab println("   CodeTab, add toolBar to layout")
     add(toolBar, BorderLayout.NORTH)
     val codePanel = new JPanel(new BorderLayout) {
-      println("   codetab, create codepanel")
+      // aab println("   codetab, create codepanel")
       add(scrollableEditor, BorderLayout.CENTER)
       add(errorLabel.component, BorderLayout.NORTH)
     }
@@ -97,45 +97,45 @@ with MenuTab {
 // getToolBar is a method that creates an instantiation of the
 // abstract class ToolBar, by providing an implemention of addControls
   def getToolBar = new ToolBar {
-    println("     >codetab, gettoolbar new ToolBar")
+    // aab println("     >codetab, gettoolbar new ToolBar")
     override def addControls() {
-      println("     >codetab, gettoolbar addControls")
+      // aab println("     >codetab, gettoolbar addControls")
       val proceduresMenu = new ProceduresMenu(CodeTab.this)
       this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
         .put(UserAction.KeyBindings.keystroke('G', withMenu = true), "procmenu")
       this.getActionMap.put("procmenu", proceduresMenu.getAction)
 
       add(new ToolBarActionButton(FindDialog.FIND_ACTION))
-      println("       =codetab, add ToolBarActionButton(CompileAction)")
+      // aab println("       =codetab, add ToolBarActionButton(CompileAction)")
       add(new ToolBarActionButton(CompileAction))
       add(new ToolBar.Separator)
-      println("       =codetab, add proceduresMenu addControls")
+      // aab println("       =codetab, add proceduresMenu addControls")
       add(proceduresMenu)
-      println("       =codetab, add IncludedFilesMenu addControls")
+      // aab println("       =codetab, add IncludedFilesMenu addControls")
       add(new IncludedFilesMenu(getIncludesTable, tabs))
-      println("       =codetab,before additionalComps")
+      // aab println("       =codetab,before additionalComps")
       val additionalComps = getAdditionalToolBarComponents
-      println("       =codetab, after additionalComps")
+      // aab println("       =codetab, after additionalComps")
       if (additionalComps.nonEmpty) {
         add(new ToolBar.Separator)
         additionalComps foreach add
       }
-      println("     <codetab, gettoolbar addControls done")
+      // aab println("     <codetab, gettoolbar addControls done")
     }
-    println("     <codetab, getToolbar done")
+    // aab println("     <codetab, getToolbar done")
   }
 
   protected def getAdditionalToolBarComponents: Seq[Component] = {
-      println("   codetab, getAdditionalToolBarComponents")
+      // aab println("   codetab, getAdditionalToolBarComponents")
        Seq.empty[Component]
   }
 
   override val permanentMenuActions = {
-    println("   codetab, permanentMenuActions")
+    // aab println("   codetab, permanentMenuActions")
     Seq(new CodeToHtml.Action(workspace, this, () => getText)) ++ editorConfiguration.permanentActions
   }
   override val activeMenuActions = {
-    println("   codetab, activeMenuActions")
+    // aab println("   codetab, activeMenuActions")
     editorConfiguration.contextActions.filter(_.isInstanceOf[FocusedOnlyAction]) ++ Seq(undoAction, redoAction)
   }
   // don't let the editor influence the preferred size,
@@ -144,7 +144,7 @@ with MenuTab {
 
   def getIncludesTable: Option[Map[String, String]] = {
 
-    println("          >codetab getIncludesTable")
+    // aab println("          >codetab getIncludesTable")
     try {
       //throw new Exception("my exception")
     }
@@ -162,10 +162,10 @@ with MenuTab {
           return None
       }
     }
-    println("            =getIncludesTable, path: " + path)
+    // aab println("            =getIncludesTable, path: " + path)
 
     val result = workspace.compiler.findIncludes(path, getText, workspace.getCompilationEnvironment)
-    println("          <codetab getIncludesTable")
+    // aab println("          <codetab getIncludesTable")
     result
   }
 
@@ -260,5 +260,5 @@ with MenuTab {
     }
     println("         <Codetab, object CompileAction")
   }
-  println("Done code tab")
+  println("  <codeTab")
 }

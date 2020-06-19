@@ -20,7 +20,7 @@ class MainCodeTab(workspace: GUIWorkspace,
 extends CodeTab(workspace, tabs)
 with WindowEvents.LoadModelEvent.Handler
 {
-println("Begin MainCodeTab")
+println(">MainCodeTab")
   var tabbing: JCheckBox = null
   val smartTabAction: Action = new SmartTabAction
 
@@ -38,14 +38,14 @@ println("Begin MainCodeTab")
   def smartTabbingEnabled = tabbing.isSelected
 
   override def getAdditionalToolBarComponents: Seq[Component] = {
-    println("         >maincodetab getAdditionalToolBarComponents")
+    //  println("         >maincodetab getAdditionalToolBarComponents")
     tabbing = new JCheckBox(smartTabAction)
     // turning it on by default (for now, anyway ~Forrest)
     tabbing.setSelected(true)
     // hack, to get it to realize it's really checked. ~Forrest (10/23/2007)
-      println("         =maincodetab getAdditionalToolBarComponents smartTabAction.actionPerformed(null)")
+      //  println("         =maincodetab getAdditionalToolBarComponents smartTabAction.actionPerformed(null)")
     smartTabAction.actionPerformed(null)
-    println("         <maincodetab end getAdditionalToolBarComponents")
+    //  println("         <maincodetab end getAdditionalToolBarComponents")
     Seq(tabbing)
   }
 
@@ -60,5 +60,5 @@ println("Begin MainCodeTab")
     compile()
     println("   <MainCodeTab: handle")
   }
-    println("Done main code tab")
+    println("<MainCodeTab")
 }

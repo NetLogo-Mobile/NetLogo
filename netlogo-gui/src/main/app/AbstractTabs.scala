@@ -1,7 +1,7 @@
 // (C) Uri Wilensky. https://github.com/NetLogo/NetLogo
 
 package org.nlogo.app
-import java.awt.{ Color, Component }
+import java.awt.{ Component }
 import java.awt.event.{ ActionEvent, MouseEvent }
 import java.awt.print.PrinterAbortException
 import javax.swing.{ AbstractAction, Action, JTabbedPane, SwingConstants }
@@ -19,9 +19,9 @@ import org.nlogo.core.I18N
 import org.nlogo.swing.{ Printable, PrinterManager, TabsMenu, UserAction }, UserAction.MenuAction
 import org.nlogo.window.Event.LinkParent
 import org.nlogo.window.Events._
-import org.nlogo.window.{ Event, ExternalFileInterface, GUIWorkspace, JobWidget, MonitorWidget }
+import org.nlogo.window.{ Event, ExternalFileInterface, GUIWorkspace, MonitorWidget }
 import org.nlogo.app.interfacetab.InterfaceTab
-class AbstractTabs(val workspace:       GUIWorkspace,
+abstract class AbstractTabs(val workspace:       GUIWorkspace,
            val interfaceTab:    InterfaceTab,
            private var menu:    MenuBar,
            externalFileManager: ExternalFileManager)
@@ -34,7 +34,7 @@ class AbstractTabs(val workspace:       GUIWorkspace,
   with CompiledEvent.Handler
   with AfterLoadEvent.Handler
   with ExternalFileSavedEvent.Handler {
-  println("AbstractTabs create class")
+  println("  <AbstractTabs")
   locally {
     setOpaque(false)
     setFocusable(false)
@@ -49,7 +49,7 @@ class AbstractTabs(val workspace:       GUIWorkspace,
     }
   }
 
-  private var tabManager: AppTabManager = null
+  var tabManager: AppTabManager = null
 
   def setTabManager( myTabManager: AppTabManager ) {
     tabManager = myTabManager
@@ -79,30 +79,27 @@ class AbstractTabs(val workspace:       GUIWorkspace,
   var externalFileTabs = Set.empty[TemporaryCodeTab]
   var currentTab: Component = interfaceTab
 
-
   val codeTab = new CodeTab(workspace, this) {}
-  println("  done MainCodeTab")
-
 
   def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
-    println("   AbstractTabs init begins")
-    println("      add interface tab")
+    println("   >AbstractTabs.init")
+    //  println("      add interface tab")
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
-    println("      AbstractTabs info")
+    //  println("      AbstractTabs info")
     addTab(I18N.gui.get("tabs.info"), infoTab)
     // aab println("      AbstractTabs code")
     // aab addTab(I18N.gui.get("tabs.code"), codeTab)
-    println("      AbstractTabs add more")
+    //  println("      AbstractTabs add more")
     for((name, tab) <- moreTabs)
       addTab(name, tab)
-      println("      AbstractTabs have been added")
+      // println("      AbstractTabs have been added")
     tabActions = TabsMenu.tabActions(this)
     fileManager = manager
     dirtyMonitor = monitor
     assert(fileManager != null && dirtyMonitor != null)
 
     saveModelActions foreach menu.offerAction
-    println("   AbstractTabs init end")
+      println("   <AbstractTabs.init")
 
   }
 
@@ -138,6 +135,7 @@ class AbstractTabs(val workspace:       GUIWorkspace,
     }
     println("       current tab request focus ")
     currentTab.requestFocus()
+    println("       SwitchedTabs event")
     new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
   }
 
@@ -183,69 +181,10 @@ class AbstractTabs(val workspace:       GUIWorkspace,
     // the selection happens and sometime it doesn't - ST 8/28/04
     EventQueue.invokeLater(() => tab.select(e.pos, e.pos + e.length) )
   }
-
-  def printHandleCompiledEvent(e: CompiledEvent, inClass: String): Unit = {
-    println("   >" + inClass + " handle CompiledEvent")
-    println("     error: " + java.util.Objects.toString(e.error, "<null>"))
-    // println("   program: " + e.program) //seems to always be the same
-    println("     procedure: " + e.procedure)
-  }
-
-  def handle(e: CompiledEvent) = {
-    printHandleCompiledEvent(e, "Tabs")
-
-    val errorColor = Color.RED
-    def clearErrors() = forAllCodeTabs(tab =>
-      tabManager.getTabOwner(tab).setForegroundAt(
-      tabManager.getTabOwner(tab).indexOfComponent(tab), null))
-    def recolorTab(component: Component, hasError: Boolean): Unit =
-      tabManager.getTabOwner(component).setForegroundAt(
-        tabManager.getTabOwner(component).indexOfComponent(component),
-        if(hasError) errorColor else null)
-
-    def recolorInterfaceTab() = {
-      if (e.error != null) setSelectedIndex(0)
-      recolorTab(interfaceTab, e.error != null)
-    }
-
-    // recolor tabs
-    e.sourceOwner match {
-      case `codeTab` =>
-        // on null error, clear all errors, as we only get one event for all the files
-        if (e.error == null)
-          clearErrors()
-        else {
-          tabManager.setSelectedCodeTab(codeTab)     // aab replacement
-          // setSelectedComponent(codeTab)  // aab orig
-          recolorTab(codeTab, true)
-        }
-        // I don't really know why this is necessary when you delete a slider (by using the menu
-        // item *not* the button) which causes an error in the Code tab the focus gets lost,
-        // so request the focus by a known component 7/18/07
-        requestFocus()
-      case file: ExternalFileInterface =>
-        val filename = file.getFileName
-        var tab = getTabWithFilename(Right(filename))
-        if (!tab.isDefined && e.error != null) {
-          openExternalFile(filename)
-          tab = getTabWithFilename(Right(filename))
-          tab.get.handle(e) // it was late to the party, let it handle the event too
-        }
-        // if (e.error != null) tabManager.setSelectedCodeTab(tab.get) // aab replacement
-        if (e.error != null) setSelectedComponent(tab.get) // aab orig
-        recolorTab(tab.get, e.error != null)
-        requestFocus()
-      case null => // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
-        recolorInterfaceTab()
-      case jobWidget: JobWidget if !jobWidget.isCommandCenter =>
-        recolorInterfaceTab()
-      case _ =>
-    }
-    println("   <Tabs handle CompiledEvent")
-  }
+// aab removed handle compiledEvent
 
   def handle(e: ExternalFileSavedEvent) {
-    println("   AbstractTabs handle ExternalFileSavedEvent")
+    // println("   AbstractTabs handle ExternalFileSavedEvent")
     getTabWithFilename(Right(e.path)) foreach { tab =>
       val index = indexOfComponent(tab)
       setTitleAt(index, tab.filenameForDisplay)
@@ -331,10 +270,13 @@ class AbstractTabs(val workspace:       GUIWorkspace,
   }
 
   def handle(e: AfterLoadEvent) {
-    println("   AbstractTabs handle AfterLoadEvent")
+    // println("   AbstractTabs handle AfterLoadEvent")
     requestFocus()
   }
 
+  def handle(e: CompiledEvent) = {
+    // println("   AbstractTabs handle CompiledEvent zip")
+  }
 
   object SaveAllAction extends ExceptionCatchingAction(I18N.gui.get("menu.file.saveAll"), this)
   with MenuAction {
@@ -363,5 +305,5 @@ class AbstractTabs(val workspace:       GUIWorkspace,
         }
     }
   }
-  println("AbstractTabs end")
+  println("  <AbstractTabs")
 }
