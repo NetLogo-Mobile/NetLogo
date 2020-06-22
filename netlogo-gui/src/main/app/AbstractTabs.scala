@@ -104,11 +104,15 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
   }
 
   def printComponent(cmp: Component, description: String): Unit = {
-    val pattern = """(^.*)\[(.*$)""".r
-    val pattern(name, _) = cmp.toString
-    val shortName = name.split("\\.").last
-    println(description + System.identityHashCode(cmp) +
-     ", " + shortName)
+    if (cmp == null) {
+        println(description + "<null>")
+    } else {
+      val pattern = """(^.*)\[(.*$)""".r
+      val pattern(name, _) = cmp.toString
+      val shortName = name.split("\\.").last
+      println(description + System.identityHashCode(cmp) +
+      ", " + shortName)
+    }
   }
 
   def stateChanged(e: ChangeEvent) = {

@@ -24,23 +24,26 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
   // JDialog that contains the code tab and its JTabbedPane
   // val frame = (javax.swing.JFrame) workspace.getFrame
   val frame = workspace.getFrame.asInstanceOf[JFrame]
-  val codeTabContainer = initCodeContainer(frame)
-  val codeTabbedPane = new (JTabbedPane)
-  codeTabContainer.add(codeTabbedPane, BorderLayout.CENTER)
+  //val codeTabbedPane = this
+
+  val codeTabContainer = initCodeContainer(frame, this)
+  //codeTabContainer.add(codeTabbedPane, BorderLayout.CENTER)
 
   //  println("   MainCodeTabPanel create MainCodeTab")
   override val codeTab = new MainCodeTab(workspace, this, menu)
   //  println("   MainCodeTabPanel done MainCodeTab")
-  println(" MainCodeTabPanel codeTab: " + codeTab)
+  printComponent(codeTab, " MainCodeTabPanel codeTab: ")
   currentTab = codeTab
 
-  def initCodeContainer(frame: JFrame): Window = {
+  def initCodeContainer(frame: JFrame, codeTabbedPane: JTabbedPane): Window = {
     //println("   >MainCodeTabPanel.initCodeContainer")
-    val codeTabContainer = new JDialog(frame, I18N.gui.get("tabs.code"))
+    val codeTabContainer = new JDialog(frame,"Code Tab Container")
+    // aab2 val codeTabContainer = new JDialog(frame, I18N.gui.get("tabs.code"))
     //codeTabContainer.setModalityType(Dialog.ModalityType.MODELESS)
     codeTabContainer.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE)
     codeTabContainer.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE)
     //codeTabContainer.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE)
+    codeTabContainer.add(codeTabbedPane, BorderLayout.CENTER)
     codeTabContainer.setSize(new Dimension(600, 400))
     codeTabContainer.setLocationRelativeTo(null)
     codeTabContainer.setVisible(true)
@@ -49,10 +52,13 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
 
   override def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     println("   >MainCodeTabPanel.init")
-    println("      MainCodeTabPanel add codeTab")
-    println(" init codeTab: " + codeTab)
-
+    //println("      MainCodeTabPanel add codeTab")
+    printComponent(codeTab, "add codeTab")
+    println( "     tab count before: " + getTabCount)
     addTab(I18N.gui.get("tabs.code"), codeTab)
+    println( "     tab count after: " + getTabCount)
+    printComponent(getTabComponentAt(0), "    My Component: ")
+
     //println("      MainCodeTabPanel add more")
     // for((name, tab) <- moreTabs)
     //   addTab(name, tab)
