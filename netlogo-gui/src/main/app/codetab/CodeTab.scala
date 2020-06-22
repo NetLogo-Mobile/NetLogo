@@ -28,7 +28,7 @@ with Zoomable
 with NlogoPrintable
 with MenuTab {
 
-  println("  >codeTab")
+  // println("  >codeTab")
   private var _dirty = false
   def dirty = _dirty
 
@@ -260,5 +260,5 @@ with MenuTab {
     }
     println("         <Codetab, object CompileAction")
   }
-  println("  <codeTab")
+  // println("  <codeTab")
 }

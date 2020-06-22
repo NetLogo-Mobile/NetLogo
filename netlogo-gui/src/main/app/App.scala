@@ -155,7 +155,7 @@ object App{
     pico.addComponent(classOf[Tabs])
     pico.addComponent(classOf[MainCodeTabPanel])
     pico.addComponent(classOf[AgentMonitorManager])
-    println("App pico get component App")
+    // println("App pico get component App")
     app = pico.getComponent(classOf[App])
     // It's pretty silly, but in order for the splash screen to show up
     // for more than a fraction of a second, we want to initialize as
@@ -447,7 +447,7 @@ class App extends
     frame.addLinkComponent(dirtyMonitor)
     //  println("  =finishStartup  menubar")
     val menuBar = pico.getComponent(classOf[MenuBar])
-    println("  =finishStartup  filemanager")
+    // println("  =finishStartup  filemanager")
     pico.add(classOf[FileManager],
       "org.nlogo.app.FileManager",
       new ComponentParameter(), new ComponentParameter(), new ComponentParameter(),
@@ -458,9 +458,9 @@ class App extends
     val viewManager = pico.getComponent(classOf[GLViewManagerInterface])
     workspace.init(viewManager)
     frame.addLinkComponent(viewManager)
-    println("  =finishStartup  tabs,init")
+    // println("  =finishStartup  tabs,init")
     tabs.init(fileManager, dirtyMonitor, Plugins.load(pico): _*)
-    println("  =finishStartup  mainCodeTabPanel,init")
+    //println("  =finishStartup  mainCodeTabPanel,init")
     mainCodeTabPanel.init(fileManager, dirtyMonitor, Plugins.load(pico): _*)
     //  println("  =finishStartup  app.set menubar")
     app.setMenuBar(menuBar)
@@ -477,9 +477,9 @@ class App extends
     //  println("  =finishStartup frame.pack()")
     frame.pack()
     //  println("  =done frame.pack()")
-    println("  =finishStartup App about to load default model")
+    //println("  =finishStartup App about to load default model")
     loadDefaultModel()
-      println("  =finishStartup App after load default model")
+    //  println("  =finishStartup App after load default model")
     // smartPack respects the command center's current size, rather
     // than its preferred size, so we have to explicitly set the
     // command center to the size we want - ST 1/7/05
@@ -601,9 +601,9 @@ class App extends
 
     }
     else {
-      println("    >App load new model")
+      // println("    >App load new model")
       fileManager.newModel()
-      println("    <App load new model")
+      // println("    <App load new model")
     }
   }
 

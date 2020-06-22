@@ -15,7 +15,7 @@ class Tabs(workspace:       GUIWorkspace,
            externalFileManager: ExternalFileManager)
   extends AbstractTabs(workspace,
       interfaceTab, menu, externalFileManager) {
-  println(">Tabs")
+  // println(">Tabs")
 
   override def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     println("   >Tabs.init")
@@ -41,5 +41,5 @@ class Tabs(workspace:       GUIWorkspace,
   }
 
 
-  println("<Tabs")
+  // println("<Tabs")
 }

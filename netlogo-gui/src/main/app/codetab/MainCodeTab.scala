@@ -20,7 +20,7 @@ class MainCodeTab(workspace: GUIWorkspace,
 extends CodeTab(workspace, tabs)
 with WindowEvents.LoadModelEvent.Handler
 {
-println(">MainCodeTab")
+// println(">MainCodeTab")
   var tabbing: JCheckBox = null
   val smartTabAction: Action = new SmartTabAction
 
@@ -60,5 +60,5 @@ println(">MainCodeTab")
     compile()
     println("   <MainCodeTab: handle")
   }
-    println("<MainCodeTab")
+    // println("<MainCodeTab")
 }

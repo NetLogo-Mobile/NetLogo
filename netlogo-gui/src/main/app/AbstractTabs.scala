@@ -34,7 +34,7 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
   with CompiledEvent.Handler
   with AfterLoadEvent.Handler
   with ExternalFileSavedEvent.Handler {
-  println("  <AbstractTabs")
+  // println("  <AbstractTabs")
   locally {
     setOpaque(false)
     setFocusable(false)
@@ -83,16 +83,11 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
 
   def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     println("   >AbstractTabs.init")
-    //  println("      add interface tab")
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
-    //  println("      AbstractTabs info")
     addTab(I18N.gui.get("tabs.info"), infoTab)
-    // aab println("      AbstractTabs code")
-    // aab addTab(I18N.gui.get("tabs.code"), codeTab)
-    //  println("      AbstractTabs add more")
+
     for((name, tab) <- moreTabs)
       addTab(name, tab)
-      // println("      AbstractTabs have been added")
     tabActions = TabsMenu.tabActions(this)
     fileManager = manager
     dirtyMonitor = monitor
@@ -103,15 +98,14 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
 
   }
 
-  def printComponent(cmp: Component, description: String): Unit = {
+  def getComponentString(cmp: Component): String = {
     if (cmp == null) {
-        println(description + "<null>")
+        "<null>"
     } else {
       val pattern = """(^.*)\[(.*$)""".r
       val pattern(name, _) = cmp.toString
       val shortName = name.split("\\.").last
-      println(description + System.identityHashCode(cmp) +
-      ", " + shortName)
+      shortName + " " + System.identityHashCode(cmp)
     }
   }
 
@@ -120,9 +114,8 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
     println("   AbstractTabs proc stateChanged: " )
     val previousTab = currentTab
     currentTab = getSelectedComponent // aab fix
-
-    printComponent(previousTab, "      previous tab: ")
-    printComponent(currentTab, "       current tab: ")
+    println("      old tab: " + getComponentString(previousTab))
+    println("      new tab: " + getComponentString(currentTab))
     previousTab match {
       case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
       case _ =>
@@ -137,9 +130,9 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
       case (false, true) => saveModelActions foreach menu.revokeAction
       case _             =>
     }
-    println("       current tab request focus ")
+    // println("       current tab request focus ")
     currentTab.requestFocus()
-    println("       SwitchedTabs event")
+    // println("       SwitchedTabs event")
     new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
   }
 
@@ -150,7 +143,7 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
     OfferSaveExternalsDialog.offer(externalFileTabs filter (_.saveNeeded), this)
 
   def handle(e: LoadBeginEvent) = {
-    println("   AbstractTabs handle LoadBeginEvent")
+    //println("   AbstractTabs handle LoadBeginEvent")
     setSelectedComponent(interfaceTab)
     externalFileTabs foreach { tab =>
       externalFileManager.remove(tab)
@@ -309,5 +302,5 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
         }
     }
   }
-  println("  <AbstractTabs")
+  //println("  <AbstractTabs")
 }

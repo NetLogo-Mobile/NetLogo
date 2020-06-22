@@ -18,7 +18,7 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
   extends AbstractTabs(workspace,
       interfaceTab, menu, externalFileManager)
  {
-  println(">MainCodeTabPanel")
+  // println(">MainCodeTabPanel")
 
   // Frame is the main app frame, which is the container for the
   // JDialog that contains the code tab and its JTabbedPane
@@ -32,7 +32,7 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
   //  println("   MainCodeTabPanel create MainCodeTab")
   override val codeTab = new MainCodeTab(workspace, this, menu)
   //  println("   MainCodeTabPanel done MainCodeTab")
-  printComponent(codeTab, " MainCodeTabPanel codeTab: ")
+  // printComponent(codeTab, " MainCodeTabPanel codeTab: ")
   currentTab = codeTab
 
   def initCodeContainer(frame: JFrame, codeTabbedPane: JTabbedPane): Window = {
@@ -53,11 +53,11 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
   override def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     println("   >MainCodeTabPanel.init")
     //println("      MainCodeTabPanel add codeTab")
-    printComponent(codeTab, "add codeTab")
-    println( "     tab count before: " + getTabCount)
+    // printComponent(codeTab, "add codeTab")
+    // println( "     tab count before: " + getTabCount)
     addTab(I18N.gui.get("tabs.code"), codeTab)
     println( "     tab count after: " + getTabCount)
-    printComponent(getTabComponentAt(0), "    My Component: ")
+    println( "    My Component: " +  getComponentString(getTabComponentAt(0)))
 
     //println("      MainCodeTabPanel add more")
     // for((name, tab) <- moreTabs)
@@ -138,5 +138,5 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
     println("   <MainCodeTabPanel handle CompiledEvent")
   }
 
-  println("<MainCodeTabPanel")
+  // println("<MainCodeTabPanel")
 }
