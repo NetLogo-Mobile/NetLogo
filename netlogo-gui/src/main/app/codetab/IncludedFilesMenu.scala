@@ -27,19 +27,12 @@ with WindowEvents.CompiledEvent.Handler {
 
   updateVisibility()
 
-  def handle(e: WindowEvents.CompiledEvent) = {
-    println("   >IncludedFilesMenu handle CompiledEvent")
-    updateVisibility()
-    println("   <IncludedFilesMenu handle CompiledEvent")
-  }
+  def handle(e: WindowEvents.CompiledEvent) = updateVisibility()
+
   def updateVisibility(): Unit = {
-    println("   >IncludedFilesMenu updateVisibility")
     isEmpty = includesTable.isEmpty
-    println("   =IncludedFilesMenu revalidate")
     revalidate()
-    println("   =IncludedFilesMenu doLayout")
     super.doLayout()
-    println("   <IncludedFilesMenu updateVisibility")
   }
 
   override def populate(menu: JPopupMenu) = {
