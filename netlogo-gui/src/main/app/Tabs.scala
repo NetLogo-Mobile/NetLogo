@@ -17,17 +17,13 @@ class Tabs(workspace:       GUIWorkspace,
       interfaceTab, menu, externalFileManager) {
   // println(">Tabs")
 
-  override def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
+  def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     println("   >Tabs.init")
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
     addTab(I18N.gui.get("tabs.info"), infoTab)
-    for((name, tab) <- moreTabs)
-      addTab(name, tab)
+    addAdditionalTabs(moreTabs: _*)
     tabActions = TabsMenu.tabActions(this)
-    fileManager = manager
-    dirtyMonitor = monitor
-    assert(fileManager != null && dirtyMonitor != null)
-
+    initManagerMonitor(manager, monitor)
     saveModelActions foreach menu.offerAction
     println("   <Tabs.init")
   }

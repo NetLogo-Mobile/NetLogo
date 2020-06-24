@@ -85,21 +85,19 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
 
   val codeTab = new CodeTab(workspace, this) {}
 
-  def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
-    println("   >AbstractTabs.init")
-    addTab(I18N.gui.get("tabs.run"), interfaceTab)
-    addTab(I18N.gui.get("tabs.info"), infoTab)
-
-    for((name, tab) <- moreTabs)
-      addTab(name, tab)
-    tabActions = TabsMenu.tabActions(this)
+  def initManagerMonitor(manager: FileManager, monitor: DirtyMonitor) {
+          println("   >AbstractTabs.initManagerMonitor")
     fileManager = manager
     dirtyMonitor = monitor
     assert(fileManager != null && dirtyMonitor != null)
+      println("   <AbstractTabs.initManagerMonitor")
+  }
 
-    saveModelActions foreach menu.offerAction
-      println("   <AbstractTabs.init")
-
+  def addAdditionalTabs(moreTabs: (String, Component) *) {
+    println("   >AbstractTabs.addAdditionalTabs")
+    for((name, tab) <- moreTabs)
+      addTab(name, tab)
+      println("   <AbstractTabs.addAdditionalTabs")
   }
 
   def getComponentString(cmp: Component): String = {

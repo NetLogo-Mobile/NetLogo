@@ -43,13 +43,15 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
     codeTabContainer
   }
 
-  override def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
+  // could actually make an abstract tabs version by
+  // passing in a map of tab names and tabs similar to moreTabs,
+  // or even just having moreTabs become allTabs
+  def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     println("   >MainCodeTabPanel.init")
     addTab(I18N.gui.get("tabs.code"), codeTab)
+    addAdditionalTabs(moreTabs: _*)
     tabActions = TabsMenu.tabActions(this)
-    fileManager = manager
-    dirtyMonitor = monitor
-    assert(fileManager != null && dirtyMonitor != null)
+    initManagerMonitor(manager, monitor)
     saveModelActions foreach menu.offerAction
     println("   <MainCodeTabPanel.init")
   }
