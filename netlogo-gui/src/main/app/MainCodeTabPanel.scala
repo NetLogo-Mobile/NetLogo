@@ -4,7 +4,6 @@ package org.nlogo.app
 
 import java.awt.{ BorderLayout, Color, Component, Dimension, Window }
 import javax.swing.{ JDialog, JFrame, JTabbedPane, WindowConstants }
-//CodeTab,
 import org.nlogo.app.codetab.{ ExternalFileManager, MainCodeTab }
 import org.nlogo.core.I18N
 import org.nlogo.swing.{ TabsMenu }
@@ -18,8 +17,6 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
   extends AbstractTabs(workspace,
       interfaceTab, menu, externalFileManager)
  {
-  // println(">MainCodeTabPanel")
-
   // Frame is the main app frame, which is the container for the
   // JDialog that contains the code tab and its JTabbedPane
   // val frame = (javax.swing.JFrame) workspace.getFrame
@@ -27,16 +24,12 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
   //val codeTabbedPane = this
 
   val codeTabContainer = initCodeContainer(frame, this)
-  //codeTabContainer.add(codeTabbedPane, BorderLayout.CENTER)
 
-  //  println("   MainCodeTabPanel create MainCodeTab")
   override val codeTab = new MainCodeTab(workspace, this, menu)
-  //  println("   MainCodeTabPanel done MainCodeTab")
-  // printComponent(codeTab, " MainCodeTabPanel codeTab: ")
+
   currentTab = codeTab
 
   def initCodeContainer(frame: JFrame, codeTabbedPane: JTabbedPane): Window = {
-    //println("   >MainCodeTabPanel.initCodeContainer")
     val codeTabContainer = new JDialog(frame,"Code Tab Container")
     // aab2 val codeTabContainer = new JDialog(frame, I18N.gui.get("tabs.code"))
     //codeTabContainer.setModalityType(Dialog.ModalityType.MODELESS)
@@ -52,22 +45,11 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
 
   override def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     println("   >MainCodeTabPanel.init")
-    //println("      MainCodeTabPanel add codeTab")
-    // printComponent(codeTab, "add codeTab")
-    // println( "     tab count before: " + getTabCount)
     addTab(I18N.gui.get("tabs.code"), codeTab)
-    println( "     tab count after: " + getTabCount)
-    println( "    My Component: " +  getComponentString(getTabComponentAt(0)))
-
-    //println("      MainCodeTabPanel add more")
-    // for((name, tab) <- moreTabs)
-    //   addTab(name, tab)
-    //   println("      MainCodeTabPanel have been added")
     tabActions = TabsMenu.tabActions(this)
     fileManager = manager
     dirtyMonitor = monitor
     assert(fileManager != null && dirtyMonitor != null)
-
     saveModelActions foreach menu.offerAction
     println("   <MainCodeTabPanel.init")
   }
@@ -137,6 +119,4 @@ class MainCodeTabPanel(workspace:       GUIWorkspace,
     }
     println("   <MainCodeTabPanel handle CompiledEvent")
   }
-
-  // println("<MainCodeTabPanel")
 }

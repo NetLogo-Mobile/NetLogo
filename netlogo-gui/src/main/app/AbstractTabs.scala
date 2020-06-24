@@ -56,6 +56,7 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
   }
 
   def getTabManager() = tabManager
+
   def setMenu(newMenu: MenuBar): Unit = {
     val menuItems = permanentMenuActions ++ (currentTab match {
       case mt: MenuTab => mt.activeMenuActions
@@ -67,7 +68,10 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
   }
 
   def permanentMenuActions =
-    tabActions ++ codeTab.permanentMenuActions ++ interfaceTab.permanentMenuActions :+ PrintAction
+    tabActions ++ interfaceTab.permanentMenuActions :+ PrintAction
+// aab check
+    //tabActions ++ codeTab.permanentMenuActions ++ interfaceTab.permanentMenuActions :+ PrintAction
+
 
   var tabActions: Seq[Action] = TabsMenu.tabActions(this)
   lazy val saveModelActions = fileManager.saveModelActions(this)

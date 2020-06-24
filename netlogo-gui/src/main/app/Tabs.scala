@@ -19,17 +19,10 @@ class Tabs(workspace:       GUIWorkspace,
 
   override def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
     println("   >Tabs.init")
-        //  println("      Thread.currentThread: " +  Thread.currentThread)
-    //  println("      add interface tab")
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
-    //  println("      Tabs info")
     addTab(I18N.gui.get("tabs.info"), infoTab)
-    // aab println("      Tabs code")
-    // aab addTab(I18N.gui.get("tabs.code"), codeTab)
-    //  println("      Tabs add more")
     for((name, tab) <- moreTabs)
       addTab(name, tab)
-      println("      Tabs have been added")
     tabActions = TabsMenu.tabActions(this)
     fileManager = manager
     dirtyMonitor = monitor
@@ -37,9 +30,5 @@ class Tabs(workspace:       GUIWorkspace,
 
     saveModelActions foreach menu.offerAction
     println("   <Tabs.init")
-
   }
-
-
-  // println("<Tabs")
 }
