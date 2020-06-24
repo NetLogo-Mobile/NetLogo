@@ -52,8 +52,7 @@ object App{
   private var commandLineURL: String = null
   private var loggingConfigPath: String = null
   private var loggingDir: String = null
-  // println("object app ")
-  //     println("      Thread.currentThread: " +  Thread.currentThread)
+
   /**
    * Should be called once at startup to create the application and
    * start it running.  May not be called more than once.  Once
@@ -72,8 +71,6 @@ object App{
 
   def mainWithAppHandler(args: Array[String], appHandler: Object) {
     // this call is reflective to avoid complicating dependencies
-    // println("mainWithAppHandler")
-    // println("      Thread.currentThread: " +  Thread.currentThread)
     appHandler.getClass.getDeclaredMethod("init").invoke(appHandler)
 
     AbstractWorkspace.isApp(true)
@@ -147,7 +144,6 @@ object App{
       "org.nlogo.app.tools.PreviewCommandsEditor",
       new ComponentParameter(classOf[AppFrame]),
       new ComponentParameter(), new ComponentParameter())
-          // println("App pico menuBar")
     pico.add(classOf[MenuBar], "org.nlogo.app.MenuBar",
       new ConstantParameter(AbstractWorkspace.isApp))
     pico.add("org.nlogo.app.interfacetab.CommandCenter")
@@ -155,7 +151,6 @@ object App{
     pico.addComponent(classOf[Tabs])
     pico.addComponent(classOf[MainCodeTabPanel])
     pico.addComponent(classOf[AgentMonitorManager])
-    // println("App pico get component App")
     app = pico.getComponent(classOf[App])
     // It's pretty silly, but in order for the splash screen to show up
     // for more than a fraction of a second, we want to initialize as
@@ -166,7 +161,6 @@ object App{
     // exceptions because we're doing too much on the main thread.
         // Hey, it's important to make a good first impression.
     //   - ST 8/19/03
-    // println("App put finish startup on queue ")
     org.nlogo.awt.EventQueue.invokeAndWait(() => app.finishStartup(appHandler))
   }
 
@@ -414,15 +408,12 @@ class App extends
   }
 
   private def finishStartup(appHandler: Object) {
-    println("<finishStartup begin")
-    // println("      Thread.currentThread: " +  Thread.currentThread)
-
+    println("<finishStartup")
     val app = pico.getComponent(classOf[App])
     val currentModelAsString = {() =>
       val modelSaver = pico.getComponent(classOf[ModelSaver])
       modelSaver.modelAsString(modelSaver.currentModel, ModelReader.modelSuffix)
     }
-    //  println("  =finishStartup  model comm interface")
     pico.add(classOf[ModelingCommonsInterface],
           "org.nlogo.mc.ModelingCommons",
           Array[Parameter] (
@@ -445,26 +436,19 @@ class App extends
       new ConstantParameter(titler))
     dirtyMonitor = pico.getComponent(classOf[DirtyMonitor])
     frame.addLinkComponent(dirtyMonitor)
-    //  println("  =finishStartup  menubar")
     val menuBar = pico.getComponent(classOf[MenuBar])
-    // println("  =finishStartup  filemanager")
     pico.add(classOf[FileManager],
       "org.nlogo.app.FileManager",
       new ComponentParameter(), new ComponentParameter(), new ComponentParameter(),
       new ComponentParameter(), new ComponentParameter(),
       new ConstantParameter(menuBar), new ConstantParameter(menuBar))
     setFileManager(pico.getComponent(classOf[FileManager]))
-    //  println("  =finishStartup  viewmanager")
     val viewManager = pico.getComponent(classOf[GLViewManagerInterface])
     workspace.init(viewManager)
     frame.addLinkComponent(viewManager)
-    // println("  =finishStartup  tabs,init")
     tabs.init(fileManager, dirtyMonitor, Plugins.load(pico): _*)
-    //println("  =finishStartup  mainCodeTabPanel,init")
     mainCodeTabPanel.init(fileManager, dirtyMonitor, Plugins.load(pico): _*)
-    //  println("  =finishStartup  app.set menubar")
     app.setMenuBar(menuBar)
-    //  println("  =finishStartup  frame.setjmenubar")
     frame.setJMenuBar(menuBar)
 
     // OK, this is a little kludgy.  First we pack so everything
@@ -474,22 +458,16 @@ class App extends
     // again.  The first pack is needed because until everything
     // has been realized, the NetLogo event system won't work.
     //  - ST 8/16/03
-    //  println("  =finishStartup frame.pack()")
     frame.pack()
-    //  println("  =done frame.pack()")
-    //println("  =finishStartup App about to load default model")
     loadDefaultModel()
-    //  println("  =finishStartup App after load default model")
     // smartPack respects the command center's current size, rather
     // than its preferred size, so we have to explicitly set the
     // command center to the size we want - ST 1/7/05
-    //  println("  =finishStartup  set command c size")
     tabs.interfaceTab.commandCenter.setSize(tabs.interfaceTab.commandCenter.getPreferredSize)
     smartPack(frame.getPreferredSize, true)
 
     if (! isMac) { org.nlogo.awt.Positioning.center(frame, null) }
 
-    //  println("  =finishStartup  FindDialog init")
     org.nlogo.app.common.FindDialog.init(frame)
 
     Splash.endSplash()
