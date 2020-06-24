@@ -16,15 +16,14 @@ class Tabs(workspace:       GUIWorkspace,
   extends AbstractTabs(workspace,
       interfaceTab, menu, externalFileManager) {
   // println(">Tabs")
-
   def init(manager: FileManager, monitor: DirtyMonitor, moreTabs: (String, Component) *) {
-    println("   >Tabs.init")
+    println(" >Tabs.init")
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
     addTab(I18N.gui.get("tabs.info"), infoTab)
     addAdditionalTabs(moreTabs: _*)
     tabActions = TabsMenu.tabActions(this)
     initManagerMonitor(manager, monitor)
     saveModelActions foreach menu.offerAction
-    println("   <Tabs.init")
+    println(" <Tabs.init")
   }
 }

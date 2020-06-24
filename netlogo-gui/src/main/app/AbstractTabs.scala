@@ -58,13 +58,19 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
   def getTabManager() = tabManager
 
   def setMenu(newMenu: MenuBar): Unit = {
+    //println("    >setMenu")
     val menuItems = permanentMenuActions ++ (currentTab match {
       case mt: MenuTab => mt.activeMenuActions
       case _ => Seq()
     })
+
+    //println("menuItems: " +  menuItems.map(_.getValue(javax.swing.Action.NAME)).mkString(" "))
     menuItems.foreach(action => menu.revokeAction(action))
+    //println("menu: " + menu.getSubElements.map(_.getClass.getSimpleName).mkString(" "))
     menuItems.foreach(newMenu.offerAction)
+    //println("newMenu: " + newMenu.getSubElements.map(_.getClass.getSimpleName).mkString(" "))
     menu = newMenu
+    //println("    >setMenu")
   }
 
   def permanentMenuActions =
@@ -86,18 +92,14 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
   val codeTab = new CodeTab(workspace, this) {}
 
   def initManagerMonitor(manager: FileManager, monitor: DirtyMonitor) {
-          println("   >AbstractTabs.initManagerMonitor")
     fileManager = manager
     dirtyMonitor = monitor
     assert(fileManager != null && dirtyMonitor != null)
-      println("   <AbstractTabs.initManagerMonitor")
   }
 
   def addAdditionalTabs(moreTabs: (String, Component) *) {
-    println("   >AbstractTabs.addAdditionalTabs")
     for((name, tab) <- moreTabs)
       addTab(name, tab)
-      println("   <AbstractTabs.addAdditionalTabs")
   }
 
   def getComponentString(cmp: Component): String = {
