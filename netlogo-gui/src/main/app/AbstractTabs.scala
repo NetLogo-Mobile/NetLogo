@@ -1,6 +1,8 @@
 // (C) Uri Wilensky. https://github.com/NetLogo/NetLogo
 
 package org.nlogo.app
+// import java.awt.{ Color } // aab
+// import org.nlogo.window.{ JobWidget } // aab
 import java.awt.{ Component }
 import java.awt.event.{ ActionEvent, MouseEvent }
 import java.awt.print.PrinterAbortException
@@ -275,10 +277,6 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
     requestFocus()
   }
 
-  def handle(e: CompiledEvent) = {
-    // println("   AbstractTabs handle CompiledEvent zip")
-  }
-
   object SaveAllAction extends ExceptionCatchingAction(I18N.gui.get("menu.file.saveAll"), this)
   with MenuAction {
     category    = UserAction.FileCategory
@@ -306,5 +304,80 @@ abstract class AbstractTabs(val workspace:       GUIWorkspace,
         }
     }
   }
+
+
+  def printHandleCompiledEvent(e: CompiledEvent, inClass: String): Unit = {
+    println("   >" + inClass + " handle CompiledEvent")
+    println("     error: " + java.util.Objects.toString(e.error, "<null>"))
+    println("     sourceOwner: " + e.sourceOwner)
+    // println("   program: " + e.program) //seems to always be the same
+    println("     procedure: " + e.procedure)
+  }
+  
+  // override def handle(e: CompiledEvent) = {
+  //   println( "AbstractTabs.handle.CompiledEvent")
+  //
+  //   // try {
+  //   //   throw new Exception("my exception")
+  //   // }
+  //   // catch {
+  //   //   case e: Exception =>
+  //   //   e.printStackTrace()
+  //   // }
+  //   printHandleCompiledEvent(e, "AbstractTabs")
+  //   val errorColor = Color.RED
+  //   def clearErrors() = forAllCodeTabs(tab =>
+  //     tabManager.getTabOwner(tab).setForegroundAt(
+  //    tabManager.getTabOwner(tab).indexOfComponent(tab), null))
+  //   def recolorTab(component: Component, hasError: Boolean): Unit =
+  //     tabManager.getTabOwner(component).setForegroundAt(
+  //       tabManager.getTabOwner(component).indexOfComponent(component),
+  //       if(hasError) errorColor else null)
+  //
+  //   def recolorInterfaceTab() = {
+  //     if (e.error != null) setSelectedIndex(0)
+  //     recolorTab(interfaceTab, e.error != null)
+  //   }
+  //
+  //   // recolor tabs
+  //   e.sourceOwner match {
+  //     case `codeTab` =>
+  //       // on null error, clear all errors, as we only get one event for all the files
+  //       println("     AbstractTabs CompiledEvent case code tab")
+  //       if (e.error == null) {
+  //         println("     AbstractTabs CompiledEvent case null error")
+  //         clearErrors()
+  //       }
+  //       else {
+  //         println("     AbstractTabs CompiledEvent case not null error")
+  //         tabManager.setSelectedCodeTab(codeTab)     // aab replacement
+  //         // setSelectedComponent(codeTab)  // aab orig
+  //         recolorTab(codeTab, true)
+  //       }
+  //       // I don't really know why this is necessary when you delete a slider (by using the menu
+  //       // item *not* the button) which causes an error in the Code tab the focus gets lost,
+  //       // so request the focus by a known component 7/18/07
+  //       requestFocus()
+  //     case file: ExternalFileInterface =>
+  //       println("     AbstractTabs CompiledEvent case ExternalFileInterface")
+  //       val filename = file.getFileName
+  //       var tab = getTabWithFilename(Right(filename))
+  //       if (!tab.isDefined && e.error != null) {
+  //         openExternalFile(filename)
+  //         tab = getTabWithFilename(Right(filename))
+  //         tab.get.handle(e) // it was late to the party, let it handle the event too
+  //       }
+  //       // if (e.error != null) tabManager.setSelectedCodeTab(tab.get) // aab replacement
+  //       if (e.error != null) setSelectedComponent(tab.get) // aab orig
+  //       recolorTab(tab.get, e.error != null)
+  //       requestFocus()
+  //     case null => // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
+  //       recolorInterfaceTab()
+  //     case jobWidget: JobWidget if !jobWidget.isCommandCenter =>
+  //       recolorInterfaceTab()
+  //     case _ =>
+  //   }
+  //   println("   <AbstractTabs handle CompiledEvent")
+  // }
   //println("  <AbstractTabs")
 }

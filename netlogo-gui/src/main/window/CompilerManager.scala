@@ -58,6 +58,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
   }
 
   def handle(e: LoadEndEvent): Unit = {
+    println("  CompilerManager.handle.LoadEndEvent")
     isLoading = false
     world.program(Program.fromDialect(workspace.dialect).copy(interfaceGlobals = getGlobalVariableNames))
     world.realloc()
@@ -66,6 +67,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
   }
 
   def handle(e: CompileMoreSourceEvent): Unit = {
+    println("  CompilerManager.handle.CompileMoreSourceEvent")
     val owner = e.owner
     if (isLoading)
       widgets += owner
@@ -90,6 +92,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
   }
 
   def handle(e: InterfaceGlobalEvent): Unit = {
+    println("  CompilerManager.handle.InterfaceGlobalEvent")
     val widget = e.widget
     globalWidgets += e.widget
     if (e.nameChanged)
@@ -134,10 +137,12 @@ class CompilerManager(val workspace: AbstractWorkspace,
   }
 
   def handle(e: CompileAllEvent): Unit = {
+    println("  CompilerManager.handle.CompileAllEvent")
     compileAll()
   }
 
   def handle(e: WidgetAddedEvent): Unit = {
+    println("  CompilerManager.handle.WidgetAddedEvent")
     e.widget match {
       case jobOwner: JobOwner => widgets += jobOwner
       case _ =>
@@ -149,6 +154,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
   }
 
   def handle(e: WidgetRemovedEvent): Unit = {
+    println("  CompilerManager.handle.WidgetRemovedEvent")
     e.widget match {
       case jobOwner: JobOwner => widgets -= jobOwner
       case _ =>

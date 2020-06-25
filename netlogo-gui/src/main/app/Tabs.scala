@@ -26,4 +26,7 @@ class Tabs(workspace:       GUIWorkspace,
     saveModelActions foreach menu.offerAction
     println(" <Tabs.init")
   }
+  override def handle(e: CompiledEvent) = {
+    println( "Tabs.handle.CompiledEvent")
+  }
 }

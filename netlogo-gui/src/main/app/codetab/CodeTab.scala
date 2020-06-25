@@ -51,7 +51,6 @@ with MenuTab {
       .withListener(listener)
 
   val text = {
-    // aab println("   creating an editor in CodeTab")
     val editor = editorFactory.newEditor(editorConfiguration, true)
     editor.setMargin(new Insets(4, 7, 4, 7))
     editor
@@ -74,9 +73,7 @@ with MenuTab {
   override def zoomTarget = text
 
   val errorLabel = new CommentableError(text)
-  // aab println("   >CodeTab, about to getToolBar")
   val toolBar = getToolBar
-  // aab println("   <CodeTab, getToolBar done")
   val scrollableEditor = editorFactory.scrollPane(text)
   def compiler = workspace
   def program = workspace.world.program
@@ -84,10 +81,8 @@ with MenuTab {
   locally {
     setIndenter(false)
     setLayout(new BorderLayout)
-    // aab println("   CodeTab, add toolBar to layout")
     add(toolBar, BorderLayout.NORTH)
     val codePanel = new JPanel(new BorderLayout) {
-      // aab println("   codetab, create codepanel")
       add(scrollableEditor, BorderLayout.CENTER)
       add(errorLabel.component, BorderLayout.NORTH)
     }
@@ -97,45 +92,33 @@ with MenuTab {
 // getToolBar is a method that creates an instantiation of the
 // abstract class ToolBar, by providing an implemention of addControls
   def getToolBar = new ToolBar {
-    // aab println("     >codetab, gettoolbar new ToolBar")
     override def addControls() {
-      // aab println("     >codetab, gettoolbar addControls")
       val proceduresMenu = new ProceduresMenu(CodeTab.this)
       this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
         .put(UserAction.KeyBindings.keystroke('G', withMenu = true), "procmenu")
       this.getActionMap.put("procmenu", proceduresMenu.getAction)
 
       add(new ToolBarActionButton(FindDialog.FIND_ACTION))
-      // aab println("       =codetab, add ToolBarActionButton(CompileAction)")
       add(new ToolBarActionButton(CompileAction))
       add(new ToolBar.Separator)
-      // aab println("       =codetab, add proceduresMenu addControls")
       add(proceduresMenu)
-      // aab println("       =codetab, add IncludedFilesMenu addControls")
       add(new IncludedFilesMenu(getIncludesTable, tabs))
-      // aab println("       =codetab,before additionalComps")
       val additionalComps = getAdditionalToolBarComponents
-      // aab println("       =codetab, after additionalComps")
       if (additionalComps.nonEmpty) {
         add(new ToolBar.Separator)
         additionalComps foreach add
       }
-      // aab println("     <codetab, gettoolbar addControls done")
     }
-    // aab println("     <codetab, getToolbar done")
   }
 
   protected def getAdditionalToolBarComponents: Seq[Component] = {
-      // aab println("   codetab, getAdditionalToolBarComponents")
        Seq.empty[Component]
   }
 
   override val permanentMenuActions = {
-    // aab println("   codetab, permanentMenuActions")
     Seq(new CodeToHtml.Action(workspace, this, () => getText)) ++ editorConfiguration.permanentActions
   }
   override val activeMenuActions = {
-    // aab println("   codetab, activeMenuActions")
     editorConfiguration.contextActions.filter(_.isInstanceOf[FocusedOnlyAction]) ++ Seq(undoAction, redoAction)
   }
   // don't let the editor influence the preferred size,
@@ -143,15 +126,6 @@ with MenuTab {
   override def getPreferredSize: Dimension = toolBar.getPreferredSize
 
   def getIncludesTable: Option[Map[String, String]] = {
-
-    // aab println("          >codetab getIncludesTable")
-    try {
-      //throw new Exception("my exception")
-    }
-    catch {
-      case e: Exception =>
-      e.printStackTrace()
-    }
     val path = Option(workspace.getModelPath).getOrElse{
       // we create an arbitrary model name for checking include paths when we don't have an actual
       // modelPath or directory
@@ -162,10 +136,8 @@ with MenuTab {
           return None
       }
     }
-    // aab println("            =getIncludesTable, path: " + path)
 
     val result = workspace.compiler.findIncludes(path, getText, workspace.getCompilationEnvironment)
-    // aab println("          <codetab getIncludesTable")
     result
   }
 
@@ -185,7 +157,7 @@ with MenuTab {
     println("   CodeTab handle SwitchedTabsEvent")
     printComponent(e.oldTab, "      old tab: ")
     printComponent(e.newTab, "      new tab: ")
-    println("      dirty: " + dirty)
+    //println("      dirty: " + dirty)
     if (dirty && e.oldTab == this) compile()
   }
 
@@ -260,5 +232,4 @@ with MenuTab {
     }
     println("         <Codetab, object CompileAction")
   }
-  // println("  <codeTab")
 }
