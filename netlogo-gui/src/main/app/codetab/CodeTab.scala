@@ -223,11 +223,15 @@ with MenuTab {
   private object CompileAction extends AbstractAction(I18N.gui.get("tabs.code.checkButton")) {
     println("         >Codetab, object CompileAction")
     putValue(Action.SMALL_ICON, icon("/images/check-gray.gif"))
-    def actionPerformed(e: ActionEvent) = compile()
+    def actionPerformed(e: ActionEvent) = {
+      println("CompileAction performed")
+      compile()
+    }
     def setDirty(isDirty: Boolean) = {
       val iconPath =
         if (isDirty) "/images/check.gif"
         else         "/images/check-gray.gif"
+      //println("setDirty performed")
       putValue(Action.SMALL_ICON, icon(iconPath))
     }
     println("         <Codetab, object CompileAction")
