@@ -6,6 +6,7 @@ import java.awt.{ Component }
 import org.nlogo.app.codetab.{ ExternalFileManager }
 import org.nlogo.core.I18N
 import org.nlogo.swing.{ TabsMenu }
+import org.nlogo.window.Events._
 import org.nlogo.window.{ GUIWorkspace }
 import org.nlogo.app.interfacetab.InterfaceTab
 
