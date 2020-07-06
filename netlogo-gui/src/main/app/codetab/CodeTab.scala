@@ -231,7 +231,7 @@ with MenuTab {
       val iconPath =
         if (isDirty) "/images/check.gif"
         else         "/images/check-gray.gif"
-      //println("setDirty performed")
+      //println("setDirty performed") //aab
       putValue(Action.SMALL_ICON, icon(iconPath))
     }
     println("         <Codetab, object CompileAction")
