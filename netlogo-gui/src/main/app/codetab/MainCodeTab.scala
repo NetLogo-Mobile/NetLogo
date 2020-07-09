@@ -51,6 +51,12 @@ with WindowEvents.LoadModelEvent.Handler
 
   def handle(e: WindowEvents.LoadModelEvent) {
     innerSource = e.model.code
-    compile()
+    println("MainCodeTab: LoadModelEvent")
+    println("innerSource: " + innerSource)
+    val some = Option(innerSource)
+    some match {
+      case Some(_) => compile()
+      case None => println("   No code to compile")
+    }
   }
 }

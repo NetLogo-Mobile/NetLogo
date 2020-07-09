@@ -146,7 +146,30 @@ class Tabs(val workspace:       GUIWorkspace,
     EventQueue.invokeLater(() => tab.select(e.pos, e.pos + e.length) )
   }
 
+  def printSwingObject(obj: Object, description: String): Unit = {
+    val some = Option(obj)
+    some match {
+      case None           => println(description + "<null>")
+      case Some(theValue) =>  {
+        val pattern = """(^.*)\[(.*$)""".r
+        val pattern(name, _) = obj.toString
+        val shortName = name.split("\\.").last
+        println(description + System.identityHashCode(obj) +
+        ", " + shortName)
+      }
+    }
+  }
+
+ def printHandleCompiledEvent(e: CompiledEvent, inClass: String): Unit = {
+   println("   >" + inClass + " handle CompiledEvent")
+   println("     error: " + java.util.Objects.toString(e.error, "<null>"))
+   printSwingObject(e.sourceOwner, "     sourceOwner: ")
+ }
+
+
   def handle(e: CompiledEvent) = {
+     //printHandleCompiledEvent(e, "Tabs")
+
     val errorColor = Color.RED
     def clearErrors() = forAllCodeTabs(tab => setForegroundAt(indexOfComponent(tab), null))
     def recolorTab(component: Component, hasError: Boolean): Unit =

@@ -148,7 +148,35 @@ with MenuTab {
     errorLabel.zoom(zoomFactor)
   }
 
+  def printSwingObject(obj: Object, description: String): Unit = {
+    val some = Option(obj)
+    some match {
+      case None           => println(description + "<null>")
+      case Some(theValue) =>  {
+        val pattern = """(^.*)\[(.*$)""".r
+        val pattern(name, _) = obj.toString
+        val shortName = name.split("\\.").last
+        println(description + System.identityHashCode(obj) +
+        ", " + shortName)
+      }
+    }
+  }
+
+ def printHandleCompiledEvent(e: WindowEvents.CompiledEvent, inClass: String): Unit = {
+   println("   >" + inClass + " handle CompiledEvent")
+   println("     error: " + java.util.Objects.toString(e.error, "<null>"))
+   printSwingObject(e.sourceOwner, "     sourceOwner: ")
+ }
+
   def handle(e: WindowEvents.CompiledEvent) = {
+    printHandleCompiledEvent(e, "CodeTab")
+    try {
+      //throw new Exception("my exception")
+    }
+    catch {
+     case e: Exception =>
+       e.printStackTrace()
+    }
     dirty = false
     if (e.sourceOwner == this) errorLabel.setError(e.error, headerSource.length)
     // this was needed to get extension colorization showing up reliably in the editor area - RG 23/3/16
@@ -190,7 +218,10 @@ with MenuTab {
 
   private object CompileAction extends AbstractAction(I18N.gui.get("tabs.code.checkButton")) {
     putValue(Action.SMALL_ICON, icon("/images/check-gray.gif"))
-    def actionPerformed(e: ActionEvent) = compile()
+    def actionPerformed(e: ActionEvent) = {
+      println("    CompileAction * perform * in CodeTab")
+      compile()
+    }
     def setDirty(isDirty: Boolean) = {
       val iconPath =
         if (isDirty) "/images/check.gif"

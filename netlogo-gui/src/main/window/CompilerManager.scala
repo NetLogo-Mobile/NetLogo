@@ -58,15 +58,18 @@ class CompilerManager(val workspace: AbstractWorkspace,
   }
 
   def handle(e: LoadEndEvent): Unit = {
+    println(">CompilerManager, handle LoadEndEvent")
     isLoading = false
     world.program(Program.fromDialect(workspace.dialect).copy(interfaceGlobals = getGlobalVariableNames))
     world.realloc()
     compileAll()
     world.clearAll()
+    println("<CompilerManager, handle LoadEndEvent")
   }
 
   def handle(e: CompileMoreSourceEvent): Unit = {
     val owner = e.owner
+    println(">CompilerManager, handle CompileMoreSourceEvent, owner: " + owner)
     if (isLoading)
       widgets += owner
     else if (! owner.isCommandCenter)
@@ -81,19 +84,24 @@ class CompilerManager(val workspace: AbstractWorkspace,
             workspace.getLibraryManager, workspace.getCompilationEnvironment);
         results.head.init(workspace)
         results.head.owner = owner
+        println("  >CompilerManager, raise CompiledEvent")
         raiseEvent(new CompiledEvent(owner, world.program, results.head, null))
       } catch {
         case error: CompilerException =>
           raiseEvent(new CompiledEvent(owner, world.program, null, error))
       }
     }
+      println("<CompilerManager, handle CompileMoreSourceEvent")
   }
 
   def handle(e: InterfaceGlobalEvent): Unit = {
+    println(">CompilerManager, handle InterfaceGlobalEvent")
     val widget = e.widget
     globalWidgets += e.widget
-    if (e.nameChanged)
+    if (e.nameChanged) {
+      println("  =handle InterfaceGlobalEvent compile all")
       compileAll()
+    }
     // this check is needed because it might be a brand new widget
     // that doesn't have a variable yet - ST 3/3/04
     else if (world.observerOwnsIndexOf(widget.name.toUpperCase) != -1) {
@@ -131,6 +139,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
           Exceptions.ignore(ex)
       }
     }
+    println("<CompilerManager, handle InterfaceGlobalEvent")
   }
 
   def handle(e: CompileAllEvent): Unit = {
@@ -160,6 +169,8 @@ class CompilerManager(val workspace: AbstractWorkspace,
   }
 
   private def compileAll(): Unit = {
+    println(">CompilerManager, compileAll, isLoading: " + isLoading)
+
     raiseEvent(new RemoveAllJobsEvent())
     world.displayOn(true)
     // We can't compile the Code tab until the contents of
@@ -171,6 +182,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
     // this method again. - ST 7/7/06
     if (!isLoading) {
       val proceed = compileProcedures()
+      println("  =compileAll, after compileProcedures proceed: " + proceed)
       // After every, failing or passing, compilation process, NetLogo needs to remember
       // the state of all the widgets in the interface tab when loading for the first time.
       // This is normally done by reallocating the widgets, updating the dialog
@@ -190,9 +202,11 @@ class CompilerManager(val workspace: AbstractWorkspace,
         resetWidgetProcedures()
       }
     }
+    println("<CompilerManager, compileAll")
   }
 
   private def compileProcedures(): Boolean = {
+    println("  >CompilerManager, compileProcedures")
     val program = Program.fromDialect(workspace.dialect).copy(interfaceGlobals = getGlobalVariableNames)
     world.program(program)
     try {
@@ -207,6 +221,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
           proceduresInterface.innerSource, owners, program,
           workspace.getExtensionManager, workspace.getLibraryManager,
           workspace.getCompilationEnvironment, false)
+          println("  CompilerManager, compileProcedures, got results")
       workspace.setProcedures(results.proceduresMap)
       workspace.procedures.values.foreach { procedure =>
         val owner = procedure.filename match {
@@ -219,6 +234,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
       workspace.init()
       world.program(results.program)
       raiseEvent(new CompiledEvent(proceduresInterface, results.program, null, null))
+      println("  <CompilerManager, compileProcedures, no error")
       true
     } catch {
       case error: CompilerException =>
@@ -228,6 +244,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
           case fileName    => new ExternalFileInterface(fileName)
         }
         raiseEvent(new CompiledEvent(errorSource, null, null, error))
+        println("  <CompilerManager, compileProcedures CompilerException")
         false
     }
   }
@@ -254,6 +271,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
 
   // this returns an error event, if an error was encountered
   private def compileSource(owner: JobOwner): Option[CompiledEvent] = {
+    println(">CompilerManager, compileSource")
     try {
       val displayName =
         Some(s"${owner.classDisplayName} '${owner.displayName}'")
@@ -268,13 +286,16 @@ class CompilerManager(val workspace: AbstractWorkspace,
         results.head.owner = owner
         raiseEvent(new CompiledEvent(owner, world.program, results.head, null))
       }
+      println(">CompilerManager, compileSource, no error")
       None
     } catch {
+    //  println(">CompilerManager, compileSource, error")
       case error: CompilerException => Some(new CompiledEvent(owner, world.program, null, error))
     }
   }
 
   private def compileWidgets(): Unit = {
+    println("  >CompilerManager,compileWidgets + widgets empty = " + widgets.isEmpty)
     // handle special case where there are no more widgets.
     if (widgets.isEmpty) {
       raiseEvent(new CompiledEvent(null, world.program, null, null))
@@ -289,6 +310,7 @@ class CompilerManager(val workspace: AbstractWorkspace,
 
     // Ensure that newly compiled constraints are updated.
     updateInterfaceGlobalConstraints()
+    println("  >CompilerManager,compileWidgets ")
   }
 
   private def resetWidgetProcedures(): Unit = {
