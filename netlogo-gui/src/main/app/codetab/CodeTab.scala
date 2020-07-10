@@ -171,15 +171,37 @@ with MenuTab {
     errorLabel.zoom(zoomFactor)
   }
 
-  def printHandleCompiledEvent(e: org.nlogo.window.Events.CompiledEvent, inClass: String): Unit = {
-    println("   >" + inClass + " handle CompiledEvent")
-    println("     error: " + java.util.Objects.toString(e.error, "<null>"))
-    // println("   program: " + e.program) //seems to always be the same
-    println("     procedure: " + e.procedure)
+
+  def printSwingObject(obj: Object, description: String): Unit = {
+    val some = Option(obj)
+    some match {
+      case None           => println(description + "<null>")
+      case Some(theValue) =>  {
+        val pattern = """(^.*)\[(.*$)""".r
+        val pattern(name, _) = obj.toString
+        val shortName = name.split("\\.").last
+        println(description + System.identityHashCode(obj) +
+        ", " + shortName)
+      }
+    }
+  }
+
+  def printHandleCompiledEvent(e: WindowEvents.CompiledEvent, inClass: String): Unit = {
+   println("   >" + inClass + " handle CompiledEvent")
+   println("     error: " + java.util.Objects.toString(e.error, "<null>"))
+   printSwingObject(e.sourceOwner, "     sourceOwner: ")
   }
 
   def handle(e: WindowEvents.CompiledEvent) = {
     printHandleCompiledEvent(e, "CodeTab")
+    try {
+      //throw new Exception("my exception")
+    }
+    catch {
+     case e: Exception =>
+       e.printStackTrace()
+    }
+
     dirty = false
     if (e.sourceOwner == this) errorLabel.setError(e.error, headerSource.length)
     // this was needed to get extension colorization showing up reliably in the editor area - RG 23/3/16
@@ -187,7 +209,10 @@ with MenuTab {
     println("   <CodeTab handle CompiledEvent")
   }
 
-  protected def compile(): Unit = new WindowEvents.CompileAllEvent().raise(this)
+  protected def compile(): Unit = {
+    println("  =CodeTab compile, raise CompileAllEvent")
+    new WindowEvents.CompileAllEvent().raise(this)
+  }
 
   override def requestFocus(): Unit = text.requestFocus()
 
@@ -224,7 +249,7 @@ with MenuTab {
     println("         >Codetab, object CompileAction")
     putValue(Action.SMALL_ICON, icon("/images/check-gray.gif"))
     def actionPerformed(e: ActionEvent) = {
-      println("CompileAction performed")
+      println("CompileAction *performed*")
       compile()
     }
     def setDirty(isDirty: Boolean) = {
